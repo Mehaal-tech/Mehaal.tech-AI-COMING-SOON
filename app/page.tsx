@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import Image from 'next/image';
 import Header from "components/Header";
 import Hero from "components/Hero";
 import { createVoiceAgent, VoiceEventType, EmotionType } from "lib/voice";
@@ -120,12 +121,15 @@ export default function Page() {
   const startAudioVisualizer = useCallback(async () => {
     if (isCleaningUpRef.current) return;
     
+    console.log('📍 startAudioVisualizer called');
+    
     try {
       // Check if API key is available
       const hasApiKey = !!process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+      console.log('✓ API key check:', hasApiKey ? 'found' : 'not found');
       
       if (!hasApiKey) {
-        console.warn('No OpenAI API key found, using fallback browser voice');
+        console.warn('⚠️ No OpenAI API key found, using fallback browser voice');
         setUseFallbackVoice(true);
         setVoiceError('Using browser voice (OpenAI key not configured)');
         
@@ -134,19 +138,49 @@ export default function Page() {
         return;
       }
       
-      if (!voiceAgentRef.current) return;
+      if (!voiceAgentRef.current) {
+        console.error('❌ Voice agent not initialized');
+        return;
+      }
+      
+      console.log('✓ Voice agent ref exists');
       
       // Initialize and connect voice agent
-      await voiceAgentRef.current.initialize();
-      await voiceAgentRef.current.connect(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+      console.log('📍 About to call initialize...');
+      try {
+        await voiceAgentRef.current.initialize();
+        console.log('✓ Initialize complete');
+      } catch (initErr) {
+        console.error('❌ Initialize failed:', initErr);
+        throw initErr;
+      }
       
-    } catch (err) { 
-      console.error("Voice Agent Error:", err);
+      console.log('📍 About to call connect with API key...');
+      try {
+        await voiceAgentRef.current.connect(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
+        console.log('✓ Connect complete');
+      } catch (connectErr) {
+        console.error('❌ Connect failed:', connectErr);
+        throw connectErr;
+      }
+      
+    } catch (err) {
+      console.error('❌ Voice Agent Error in startAudioVisualizer:', {
+        error: err,
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : 'no stack',
+      });
       setVoiceError(`OpenAI connection failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setUseFallbackVoice(true);
       
       // Fallback to browser voice
-      await setupFallbackAudio();
+      try {
+        console.log('📍 Setting up fallback audio...');
+        await setupFallbackAudio();
+        console.log('✓ Fallback audio setup complete');
+      } catch (fallbackErr) {
+        console.error('❌ Fallback audio setup also failed:', fallbackErr);
+      }
     }
   }, [setupFallbackAudio]);
 
@@ -193,6 +227,15 @@ export default function Page() {
       return;
     }
     
+    // Check if agent is connected
+    const state = voiceAgentRef.current.getState();
+    if (!state.isConnected) {
+      console.log('Voice agent not yet connected, using fallback voice');
+      setUseFallbackVoice(true);
+      speakWithBrowserVoice(greetingText);
+      return;
+    }
+    
     // Use OpenAI voice agent
     setIsSpeaking(true);
     voiceAgentRef.current.sendMessage(greetingText)
@@ -226,10 +269,35 @@ export default function Page() {
             setUiPhase(4); // Ready
             
             if (!hasSpokenRef.current) {
-              const timer5 = setTimeout(() => {
-                startAudioVisualizer();
-                speakGreeting();
-                hasSpokenRef.current = true;
+              const timer5 = setTimeout(async () => {
+                // Start audio connection
+                console.log('🎤 Starting audio visualizer and voice agent connection...');
+                await startAudioVisualizer();
+                
+                // Wait for connection with shorter timeout now
+                let connectionWaitAttempts = 0;
+                const maxWaitTime = 12; // 12 * 500ms = 6 seconds max
+                
+                const waitForConnection = setInterval(() => {
+                  connectionWaitAttempts++;
+                  const isConnected = voiceAgentRef.current?.getState().isConnected;
+                  
+                  console.log(`🔗 Connection check ${connectionWaitAttempts}/${maxWaitTime}: ${isConnected ? '✅ CONNECTED' : '⏳ waiting'}`);
+                  
+                  if (isConnected || connectionWaitAttempts >= maxWaitTime) {
+                    clearInterval(waitForConnection);
+                    
+                    if (isConnected) {
+                      console.log('✅ Voice agent connected, speaking greeting');
+                    } else {
+                      console.log('⏱️ Connection timeout, speaking with fallback voice');
+                    }
+                    
+                    // Speak greeting
+                    speakGreeting();
+                    hasSpokenRef.current = true;
+                  }
+                }, 500); // Check every 500ms
               }, 500);
               
               return () => clearTimeout(timer5);
@@ -382,14 +450,16 @@ export default function Page() {
         {/* Overlay */}
         {uiPhase >= 4 && <div className="absolute inset-0 bg-black/30 transition-opacity duration-1000"></div>}
         
-        {/* HERO LOGO */}
-        <img 
+        {/* HERO LOGO - Priority LCP Image */}
+        <Image 
           src="/brand/mehaal-logo.svg" 
           alt="Mehaal Logo" 
           className="fixed z-50 object-contain"
           style={getLogoStyle}
-          loading="eager"
+          priority
           draggable={false}
+          width={400}
+          height={400}
         />
         
         {/* Content */}

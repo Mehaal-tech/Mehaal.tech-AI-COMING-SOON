@@ -4,6 +4,9 @@ node_modules
 
 # Environment variables
 .env
+.env.example
+.env.local.example
+.env.local
 
 # Logs
 npm-debug.log*

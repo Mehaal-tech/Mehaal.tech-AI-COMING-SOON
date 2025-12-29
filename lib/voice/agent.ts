@@ -40,9 +40,14 @@ export class VoiceAgentService {
   private profileManager: ProfileManager;
   private currentLanguage: SupportedLanguage = SupportedLanguage.ENGLISH;
   private isConnected = false;
+  private isInitializing = false;
+  private isConnecting = false;
   private audioContext: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
   private animationFrameId: number | null = null;
+  private connectionAttempts = 0;
+  private maxConnectionAttempts = 3;
+  private reconnectDelay = 1000; // ms
   
   private config: VoiceAgentConfig;
   
@@ -56,16 +61,30 @@ export class VoiceAgentService {
    */
   async initialize(): Promise<void> {
     try {
+      console.log('🔧 Initializing voice agent...');
+      
+      // Prevent re-initialization if already in progress or done
+      if (this.isInitializing) {
+        console.log('ℹ️ Initialization already in progress, waiting...');
+        return;
+      }
+      
+      if (this.agent && this.session) {
+        console.log('ℹ️ Agent already initialized, skipping');
+        return;
+      }
+      
+      this.isInitializing = true;
+      
       // Create agent with base instructions
       this.agent = new RealtimeAgent({
         name: 'Mehaal',
         instructions: MEHAAL_INSTRUCTIONS,
       });
       
+      console.log('✓ Agent created:', this.agent.name);
+      
       // Create session with optimized OpenAI Realtime API settings
-      // Model: Updated to latest 2025-06-03 version for improved performance
-      // VAD: Stricter threshold (0.7) and create_response flag for better turn detection
-      // Transcription: Added for debugging and logging capability
       this.session = new RealtimeSession(this.agent, {
         model: VOICE_CONFIG.model,
         config: {
@@ -78,11 +97,16 @@ export class VoiceAgentService {
         },
       });
       
-      this.setupEventHandlers();
-      this.emitEvent(VoiceEventType.CONNECTED);
+      console.log('✓ Session created with model:', VOICE_CONFIG.model);
+      
+      // Event handlers will be setup AFTER connection succeeds
+      console.log('✓ Session ready, event handlers will setup after connection');
+      
+      this.isInitializing = false;
       
     } catch (error) {
-      console.error('Voice agent initialization error:', error);
+      console.error('❌ Voice agent initialization error:', error);
+      this.isInitializing = false;
       this.emitEvent(VoiceEventType.ERROR, error);
       throw error;
     }
@@ -92,19 +116,94 @@ export class VoiceAgentService {
    * Connect to OpenAI Realtime API
    */
   async connect(apiKey?: string): Promise<void> {
+    // Prevent double connection
+    if (this.isConnecting) {
+      console.log('⏳ Connection already in progress, skipping');
+      return;
+    }
+    
+    if (this.isConnected) {
+      console.log('✅ Already connected, skipping');
+      return;
+    }
+    
     if (!this.session) {
+      console.log('📍 No session, calling initialize first...');
       await this.initialize();
     }
     
+    this.isConnecting = true;
+    console.log('🔗 CONNECT METHOD CALLED');
+    
     try {
-      const key = apiKey || this.config.apiKey || process.env.OPENAI_API_KEY;
+      const key = apiKey || this.config.apiKey || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+      
+      console.log('✓ Got API key:', key ? 'yes' : 'no');
       
       if (!key) {
         throw new Error('OpenAI API key is required');
       }
       
-      await this.session!.connect({ apiKey: key });
+      if (!key.startsWith('sk-')) {
+        throw new Error('Invalid OpenAI API key format');
+      }
+      
+      console.log('🔗 Connecting to OpenAI Realtime API...');
+      console.log('📋 API Key:', key.substring(0, 15) + '...');
+      
+      const session = this.session! as any;
+      
+      console.log('✓ Session exists, type:', typeof session);
+      
+      // Try direct connection
+      console.log('📡 Attempting session.connect...');
+      
+      // Some SDK versions require different method names
+      if (typeof session.connect === 'function') {
+        console.log('✓ session.connect method exists');
+        
+        try {
+          const result = session.connect({ apiKey: key });
+          console.log('✓ connect() returned:', typeof result);
+          
+          if (result && typeof result.then === 'function') {
+            console.log('✓ connect returned promise, awaiting...');
+            await result;
+            console.log('✓ Promise resolved');
+          } else {
+            console.log('ℹ️ connect returned undefined (event-based)');
+          }
+        } catch (connectErr) {
+          console.error('❌ Error calling session.connect():', connectErr);
+          throw connectErr;
+        }
+      } else if (typeof session.start === 'function') {
+        console.log('✓ session.start method exists (using instead of connect)');
+        try {
+          await session.start({ apiKey: key });
+          console.log('✓ start() completed');
+        } catch (startErr) {
+          console.error('❌ Error calling session.start():', startErr);
+          throw startErr;
+        }
+      } else {
+        console.log('⚠️ No connect or start method found on session');
+        const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(session)).filter(m => typeof session[m] === 'function');
+        console.log('Available session methods:', methods);
+        throw new Error(`No connect/start method. Available: ${methods.join(', ')}`);
+      }
+      
+      // Set connected state after brief delay to allow SDK to initialize
+      console.log('⏳ Waiting 500ms for SDK initialization...');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // NOW setup event handlers AFTER connection is successful
+      this.setupEventHandlers();
+      console.log('✓ Event handlers registered after connection');
+      
       this.isConnected = true;
+      this.isConnecting = false;
+      console.log('✅ Successfully connected to OpenAI Realtime API');
       
       // Setup audio context for visualization
       await this.setupAudioVisualization();
@@ -112,7 +211,9 @@ export class VoiceAgentService {
       this.emitEvent(VoiceEventType.CONNECTED);
       
     } catch (error) {
-      console.error('Connection error:', error);
+      console.error('❌ Connection error:', error);
+      this.isConnected = false;
+      this.isConnecting = false;
       this.emitEvent(VoiceEventType.ERROR, error);
       throw error;
     }
@@ -123,6 +224,8 @@ export class VoiceAgentService {
    */
   private async setupAudioVisualization(): Promise<void> {
     try {
+      console.log('🎧 Setting up audio input...');
+      
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: AUDIO_CONFIG.echoCancellation,
@@ -130,6 +233,8 @@ export class VoiceAgentService {
           autoGainControl: AUDIO_CONFIG.autoGainControl,
         },
       });
+      
+      console.log('✅ Got user media stream');
       
       const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
       this.audioContext = new AudioContext();
@@ -140,11 +245,33 @@ export class VoiceAgentService {
       const source = this.audioContext.createMediaStreamSource(stream);
       source.connect(this.analyser);
       
+      console.log('✅ Audio context and analyser connected');
+      
       // Start analyzing audio for visualization
       this.analyzeAudio();
       
+      // Connect audio stream to RealtimeSession
+      if (this.session) {
+        try {
+          const session = this.session as any;
+          
+          // Try to connect audio stream to session
+          if (typeof session.addTrack === 'function') {
+            console.log('📡 Adding audio track to session');
+            session.addTrack(stream.getAudioTracks()[0]);
+          } else if (typeof session.setAudioStream === 'function') {
+            console.log('📡 Setting audio stream on session');
+            session.setAudioStream(stream);
+          } else {
+            console.log('ℹ️ Session audio methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(session)).filter(m => m.includes('audio') || m.includes('track') || m.includes('stream')));
+          }
+        } catch (err) {
+          console.warn('⚠️ Could not connect audio stream to session:', err);
+        }
+      }
+      
     } catch (error) {
-      console.error('Audio setup error:', error);
+      console.error('❌ Audio setup error:', error);
     }
   }
   
@@ -196,24 +323,110 @@ export class VoiceAgentService {
   private setupEventHandlers(): void {
     if (!this.session) return;
     
-    // Audio events
-    this.session.on('audio', (event) => {
-      this.emitEvent(VoiceEventType.AUDIO_START, event);
+    // Cast session to EventTarget for proper event handling
+    const session = this.session as any;
+    
+    // Connection lifecycle events
+    session.on?.('session.created', () => {
+      console.log('✅ Session created event received');
+      this.isConnected = true;
+      this.emitEvent(VoiceEventType.CONNECTED);
     });
     
-    // Transcript events
-    this.session.on('history_updated', (history) => {
+    session.on?.('session.updated', () => {
+      console.log('ℹ️ Session updated');
+    });
+    
+    // CRITICAL: Handle disconnect event - but only update state if we're actually connected
+    session.on?.('disconnected', () => {
+      console.log('⚠️ Session disconnected event received');
+      if (this.isConnected) {
+        this.isConnected = false;
+        this.emitEvent(VoiceEventType.DISCONNECTED);
+      }
+    });
+    
+    session.on?.('session.deleted', () => {
+      console.log('⚠️ Session deleted');
+      this.isConnected = false;
+    });
+    
+    // Error events
+    session.on?.('error', (error: any) => {
+      console.error('❌ Session error event:', error);
+      this.emitEvent(VoiceEventType.ERROR, error);
+    });
+    
+    // Audio input events
+    session.on?.('input_audio_buffer.committed', () => {
+      console.log('🎤 Audio committed');
+    });
+    
+    session.on?.('input_audio_buffer.speech_started', () => {
+      console.log('🎙️ Speech started');
+      this.emitEvent(VoiceEventType.SPEECH_START);
+    });
+    
+    session.on?.('input_audio_buffer.speech_stopped', () => {
+      console.log('🤐 Speech stopped');
+      this.emitEvent(VoiceEventType.SPEECH_END);
+    });
+    
+    // Response events
+    session.on?.('response.created', () => {
+      console.log('💬 Response created');
+    });
+    
+    session.on?.('response.started', () => {
+      console.log('▶️ Response started');
+    });
+    
+    session.on?.('response.audio.delta', (event: any) => {
+      console.log('🔊 Response audio delta received');
+    });
+    
+    session.on?.('response.audio_transcript.delta', (event: any) => {
+      if (event.delta) {
+        console.log('📝 Response transcript delta:', event.delta);
+      }
+    });
+    
+    session.on?.('response.text.delta', (event: any) => {
+      if (event.delta) {
+        console.log('📄 Response text:', event.delta);
+      }
+    });
+    
+    session.on?.('response.done', () => {
+      console.log('✔️ Response completed');
+    });
+    
+    // History updated events
+    session.on?.('history_updated', (history: any) => {
+      if (!history || history.length === 0) return;
+      
       const lastItem = history[history.length - 1];
-      if (lastItem && 'transcript' in lastItem) {
-        const transcript = String(lastItem.transcript || '');
+      if (!lastItem) return;
+      
+      // Extract transcript from various message types
+      let transcript = '';
+      
+      if ('transcript' in lastItem && typeof lastItem.transcript === 'string') {
+        transcript = lastItem.transcript;
+      } else if ('content' in lastItem && typeof lastItem.content === 'string') {
+        transcript = lastItem.content;
+      }
+      
+      if (transcript) {
         const isFinal = lastItem.type === 'message';
+        console.log('💭 Transcript:', transcript, 'Final:', isFinal);
         
         if (this.config.onTranscript) {
           this.config.onTranscript(transcript, isFinal);
         }
         
         // Detect language and emotion
-        if (transcript && isFinal) {
+        if (isFinal) {
           this.handleTranscript(transcript);
         }
       }
