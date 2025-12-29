@@ -1,0 +1,31 @@
+{
+  "name": "mehaal-tech-ai",
+  "version": "1.0.0",
+  "description": "Mehaal.Tech AI - Intelligence Beyond Impossible",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openai/agents": "^0.3.7",
+    "latest": "^0.2.0",
+    "next": "^14.2.35",
+    "next-themes": "^0.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.5.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "22.7.5",
+    "@types/react": "18.3.11",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
+    "typescript": "5.6.3"
+  }
+}

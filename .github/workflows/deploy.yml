@@ -1,0 +1,133 @@
+name: CI/CD Deploy to Production
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Build and test
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Build backend image
+        run: |
+          docker build -f backend/Dockerfile -t mehaal-backend:latest .
+      
+      - name: Build frontend image
+        run: |
+          docker build -f frontend/Dockerfile -t mehaal-frontend:latest .
+      
+      - name: Run basic validation
+        run: |
+          echo "✅ Images built successfully"
+          docker images | grep mehaal
+
+  # Deploy to production
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST_IP }}
+          username: ${{ secrets.HOST_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            echo "📍 Deploying Mehaal.Tech AI..."
+            cd /root/mehaal-ai
+            
+            # Pull latest code
+            git pull origin main
+            
+            # Create or update .env
+            echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" > .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "DB_PASS=${{ secrets.DB_PASS }}" >> .env
+            echo "POSTGRES_USER=${{ secrets.HOST_USER }}" >> .env
+            echo "POSTGRES_DB=mehaal_db" >> .env
+            
+            # Stop and remove old containers
+            docker-compose -f docker/docker-compose.prod.yml down || true
+            
+            # Pull latest images
+            docker-compose -f docker/docker-compose.prod.yml pull || true
+            
+            # Build and start with new images
+            docker-compose -f docker/docker-compose.prod.yml up --build -d
+            
+            # Wait for backend to be healthy
+            echo "⏳ Waiting for services to be healthy..."
+            sleep 10
+            
+            # Run database migrations
+            docker-compose -f docker/docker-compose.prod.yml exec -T api alembic -c backend/alembic.ini upgrade head || echo "Migrations may have already run"
+            
+            # Health check
+            if curl -sS http://localhost:8000/healthz > /dev/null; then
+              echo "✅ Backend is healthy!"
+            else
+              echo "❌ Backend health check failed"
+              exit 1
+            fi
+            
+            echo "🎉 Deployment successful!"
+            echo "Frontend: https://mehaal.tech"
+            echo "Backend: https://api.mehaal.tech"
+      
+      - name: Notify Slack (on success)
+        if: success()
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        with:
+          payload: |
+            {
+              "text": "✅ Mehaal.Tech AI Deployment Successful",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "🚀 *Deployment Successful*\n*Repository*: ${{ github.repository }}\n*Branch*: ${{ github.ref_name }}\n*Commit*: `${{ github.sha }}`"
+                  }
+                }
+              ]
+            }
+      
+      - name: Notify Slack (on failure)
+        if: failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        with:
+          payload: |
+            {
+              "text": "❌ Mehaal.Tech AI Deployment Failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "❌ *Deployment Failed*\n*Repository*: ${{ github.repository }}\n*Branch*: ${{ github.ref_name }}\n*Commit*: `${{ github.sha }}`"
+                  }
+                }
+              ]
+            }
