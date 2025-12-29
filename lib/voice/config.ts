@@ -1,14 +1,15 @@
 /**
  * Voice Agent Configuration
  * Nova voice with custom instructions, VAD settings, and session configuration
+ * Based on OpenAI Realtime API best practices (2025-06-03 model)
  */
 
 export const VOICE_CONFIG = {
   // Nova - Female, Friendly, Warm voice
   voice: 'nova' as const,
   
-  // Model configuration
-  model: 'gpt-4o-realtime-preview-2024-12-17',
+  // Model configuration - Latest version with improved performance
+  model: 'gpt-4o-realtime-preview-2025-06-03',
   
   // Audio formats
   audioFormats: {
@@ -16,20 +17,24 @@ export const VOICE_CONFIG = {
     output: 'pcm16' as const,
   },
   
-  // Voice Activity Detection (VAD)
+  // Voice Activity Detection (VAD) - Optimized for production
+  // Higher threshold (0.7) reduces false positives
+  // create_response flag ensures automatic response generation
   turnDetection: {
     type: 'server_vad' as const,
-    threshold: 0.5,
+    threshold: 0.7,
     prefix_padding_ms: 300,
     silence_duration_ms: 500,
+    create_response: true,
   },
-  
-  // Response configuration
-  temperature: 0.8,
-  maxResponseOutputTokens: 4096,
   
   // Modalities
   modalities: ['text', 'audio'] as ('text' | 'audio')[],
+  
+  // Input audio transcription for debugging and logging
+  inputAudioTranscription: {
+    model: 'gpt-4o-mini-transcribe',
+  },
 } as const;
 
 /**

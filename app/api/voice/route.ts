@@ -1,12 +1,55 @@
 /**
  * Voice API Route
  * Secure server-side API key handling for OpenAI Realtime
+ * Rate limiting protection against abuse
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 
+// Simple in-memory rate limiting (for production, use Redis)
+const requestCounts = new Map<string, { count: number; timestamp: number }>();
+
+const RATE_LIMIT = {
+  requests: 10,
+  windowMs: 60 * 1000, // 1 minute window
+};
+
+function getRateLimitKey(request: NextRequest): string {
+  // Use IP address or fallback to user agent
+  return request.headers.get('x-forwarded-for') || 
+         request.headers.get('x-real-ip') || 
+         'unknown';
+}
+
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = requestCounts.get(key);
+  
+  if (!entry || now - entry.timestamp > RATE_LIMIT.windowMs) {
+    // Reset counter
+    requestCounts.set(key, { count: 1, timestamp: now });
+    return true;
+  }
+  
+  if (entry.count < RATE_LIMIT.requests) {
+    entry.count++;
+    return true;
+  }
+  
+  return false;
+}
+
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const rateLimitKey = getRateLimitKey(request);
+    if (!checkRateLimit(rateLimitKey)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      );
+    }
+
     // Verify API key exists
     const apiKey = process.env.OPENAI_API_KEY;
     

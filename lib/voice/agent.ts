@@ -62,7 +62,10 @@ export class VoiceAgentService {
         instructions: MEHAAL_INSTRUCTIONS,
       });
       
-      // Create session with Nova voice
+      // Create session with optimized OpenAI Realtime API settings
+      // Model: Updated to latest 2025-06-03 version for improved performance
+      // VAD: Stricter threshold (0.7) and create_response flag for better turn detection
+      // Transcription: Added for debugging and logging capability
       this.session = new RealtimeSession(this.agent, {
         model: VOICE_CONFIG.model,
         config: {
@@ -71,6 +74,7 @@ export class VoiceAgentService {
           outputAudioFormat: VOICE_CONFIG.audioFormats.output,
           turnDetection: VOICE_CONFIG.turnDetection,
           modalities: VOICE_CONFIG.modalities,
+          inputAudioTranscription: VOICE_CONFIG.inputAudioTranscription,
         },
       });
       

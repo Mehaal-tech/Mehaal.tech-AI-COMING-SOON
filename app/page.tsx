@@ -263,7 +263,7 @@ export default function Page() {
     };
   }, [uiPhase]);
 
-  // Cleanup
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       isCleaningUpRef.current = true;
@@ -276,8 +276,15 @@ export default function Page() {
         cancelAnimationFrame(fallbackRafIdRef.current);
       }
       
-      if (fallbackAudioContextRef.current?.state !== 'closed') {
-        fallbackAudioContextRef.current?.close().catch(() => {});
+      if (fallbackAudioContextRef.current) {
+        // Close audio context if not already closed
+        if (fallbackAudioContextRef.current.state !== 'closed') {
+          try {
+            fallbackAudioContextRef.current.close();
+          } catch (e) {
+            console.error('Error closing audio context:', e);
+          }
+        }
       }
       
       if (voiceAgentRef.current) {
