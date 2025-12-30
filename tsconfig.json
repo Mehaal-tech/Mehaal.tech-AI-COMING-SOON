@@ -4,6 +4,12 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
     "noEmit": true,
     "incremental": true,
     "module": "esnext",
@@ -24,5 +30,5 @@
     ]
   },
   "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules", "second", "second/**/*"]
+  "exclude": ["node_modules", "openai-agents-js"]
 }

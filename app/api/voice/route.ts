@@ -39,6 +39,11 @@ function checkRateLimit(key: string): boolean {
   return false;
 }
 
+// Define request body type
+interface VoiceApiRequest {
+  action: 'getKey' | 'proxy';
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting check
@@ -60,7 +65,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const body = await request.json();
+    const body = await request.json() as VoiceApiRequest;
     const { action } = body;
     
     switch (action) {
