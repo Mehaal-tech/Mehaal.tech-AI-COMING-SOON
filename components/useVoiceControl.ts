@@ -77,91 +77,34 @@ export function useVoiceControl({
   const startAudioVisualizer = useCallback(async (timeoutMs: number = 10000) => {
     if (isCleaningUpRef.current) return;
 
-    console.log('📍 startAudioVisualizer called');
-
-    return new Promise<void>((resolve, reject) => {
-      // Set up timeout for API connection
-      if (connectionTimeoutRef.current) {
-        clearTimeout(connectionTimeoutRef.current);
-      }
-
-      connectionTimeoutRef.current = setTimeout(() => {
-        console.warn('⏱️ Voice agent connection timeout');
-        onVoiceError('Connection timeout - using browser voice');
-        setUseFallbackVoice(true);
-        resolve(); // Still resolve the promise
-      }, timeoutMs);
-
+    return new Promise<void>(async (resolve, reject) => {
       try {
-        // 🔒 CRITICAL: Fetch ephemeral token from server (NOT API key)
-        console.log('📍 Fetching ephemeral token from server...');
-        const tokenResponse = await fetch('/api/voice', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'token' }),
-        });
+        // 1. Fetch Token from our secure route
+        console.log('📍 Fetching secure token...');
+        const response = await fetch('/api/voice', { method: 'POST' });
+        const data = await response.json();
 
-        if (!tokenResponse.ok) {
-          if (tokenResponse.status === 429) {
-            console.warn('⚠️ Rate limited, using fallback browser voice');
-            onVoiceError('Rate limited - please try again later');
-          } else {
-            console.warn('⚠️ No OpenAI API key configured, using fallback browser voice');
-            onVoiceError('Voice service not available');
-          }
-          setUseFallbackVoice(true);
-          clearTimeout(connectionTimeoutRef.current!);
-          resolve();
-          return;
+        if (!response.ok || !data.client_secret?.value) {
+           throw new Error(data.error || 'Failed to get token');
         }
 
-        const { token, expiresIn } = await tokenResponse.json();
-        console.log('✅ Ephemeral token received (expires in', expiresIn, 'seconds)');
+        const ephemeralKey = data.client_secret.value;
+        console.log('✓ Token received');
 
-        if (!token) {
-          console.warn('⚠️ No token in response, using fallback browser voice');
-          setUseFallbackVoice(true);
-          onVoiceError('Failed to get voice token');
-          clearTimeout(connectionTimeoutRef.current!);
-          resolve();
-          return;
-        }
+        if (!voiceAgentRef.current) throw new Error('Agent not initialized');
 
-        if (!voiceAgentRef.current) {
-          console.error('❌ Voice agent not initialized');
-          reject(new Error('Voice agent not initialized'));
-          return;
-        }
+        // 2. Initialize and Connect with Token
+        await voiceAgentRef.current.initialize();
+        await voiceAgentRef.current.connect(ephemeralKey);
+        
+        onConnectionStateChange(true);
+        resolve();
 
-        console.log('✓ Voice agent ref exists, connecting with ephemeral token...');
-
-        // Initialize and connect voice agent with ephemeral token (NOT API key)
-        voiceAgentRef.current
-          .initialize()
-          .then(() => {
-            console.log('✓ Initialize complete');
-            // Pass ephemeral token, NOT the API key
-            return voiceAgentRef.current!.connect(token);
-          })
-          .then(() => {
-            console.log('✓ Connect complete');
-            onConnectionStateChange(true);
-            clearTimeout(connectionTimeoutRef.current!);
-            resolve();
-          })
-          .catch((err: unknown) => {
-            console.error('❌ Voice Agent Error:', err);
-            onVoiceError(`OpenAI connection failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
-            setUseFallbackVoice(true);
-            clearTimeout(connectionTimeoutRef.current!);
-            resolve(); // Still resolve, we'll use fallback
-          });
-      } catch (err) {
-        console.error('❌ Voice Agent Error in startAudioVisualizer:', err);
-        onVoiceError(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      } catch (err: any) {
+        console.error('❌ Connection Failed:', err);
+        onVoiceError('Connection failed, using fallback.');
         setUseFallbackVoice(true);
-        clearTimeout(connectionTimeoutRef.current!);
-        reject(err);
+        resolve();
       }
     });
   }, [onVoiceError, onConnectionStateChange]);

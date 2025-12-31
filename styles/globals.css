@@ -44,10 +44,19 @@
   }
 }
 
+@keyframes hue-cycle {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
 @layer components {
   /* Apply hue animation to neon glow elements */
   .animate-hue-cycle {
     animation: animate-hue-cycle 20s linear infinite;
+  }
+
+  .animate-hue {
+    animation: hue-cycle 10s infinite linear;
   }
 
   /* Fade in animation */

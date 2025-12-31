@@ -85,13 +85,6 @@ export function useLogoStyle(uiPhase: number, hue: number, intensity: number, is
   return useMemo(() => {
     const baseTransition = 'all 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
     const dynamicIntensity = Math.max(20, intensity * 0.8);
-    
-    // Optimized glow using CSS variables for easy DOM updates
-    const neonGlow = `
-      drop-shadow(0 0 ${dynamicIntensity}px hsl(${hue}, 100%, 60%)) 
-      drop-shadow(0 0 ${Math.round(dynamicIntensity * 2)}px hsl(${hue}, 100%, 50%)) 
-      drop-shadow(0 0 ${Math.round(dynamicIntensity * 3)}px hsl(${hue}, 100%, 40%))
-    `;
 
     switch (uiPhase) {
       case 0:
@@ -147,12 +140,13 @@ export function useLogoStyle(uiPhase: number, hue: number, intensity: number, is
           opacity: 1,
           width: '20rem',
           height: '20rem',
-          filter: neonGlow,
+          className: "animate-hue",
+          filter: isSpeaking ? `drop-shadow(0 0 ${dynamicIntensity}px #9D00FF)` : undefined,
           transition: 'top 1s, left 1s, width 1s, height 1s, opacity 1s, filter 0.1s ease-out, transform 0.3s ease-out',
           willChange: 'filter, transform',
         };
       default:
         return { willChange: 'auto' };
     }
-  }, [uiPhase, hue, intensity, isSpeaking]);
+  }, [uiPhase, intensity, isSpeaking]);
 }
