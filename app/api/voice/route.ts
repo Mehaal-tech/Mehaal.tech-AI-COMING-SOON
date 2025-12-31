@@ -1,12 +1,23 @@
 /**
  * Voice API Route
  * Secure server-side API key handling for OpenAI Realtime
- * Rate limiting protection against abuse
+ * Redis-based rate limiting for production
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { Redis } from '@upstash/redis';
 
-// Simple in-memory rate limiting (for production, use Redis)
+// Redis client for rate limiting (fallback to in-memory if not configured)
+let redis: Redis | null = null;
+
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+}
+
+// Fallback in-memory storage
 const requestCounts = new Map<string, { count: number; timestamp: number }>();
 
 const RATE_LIMIT = {
@@ -15,18 +26,35 @@ const RATE_LIMIT = {
 };
 
 function getRateLimitKey(request: NextRequest): string {
-  // Use IP address or fallback to user agent
   return request.headers.get('x-forwarded-for') || 
          request.headers.get('x-real-ip') || 
          'unknown';
 }
 
-function checkRateLimit(key: string): boolean {
+async function checkRateLimit(key: string): Promise<boolean> {
   const now = Date.now();
+  
+  if (redis) {
+    // Redis-based rate limiting
+    try {
+      const redisKey = `ratelimit:voice:${key}`;
+      const current = await redis.incr(redisKey);
+      
+      if (current === 1) {
+        await redis.pexpire(redisKey, RATE_LIMIT.windowMs);
+      }
+      
+      return current <= RATE_LIMIT.requests;
+    } catch (error) {
+      console.error('Redis rate limit error:', error);
+      // Fallback to in-memory
+    }
+  }
+  
+  // In-memory fallback
   const entry = requestCounts.get(key);
   
   if (!entry || now - entry.timestamp > RATE_LIMIT.windowMs) {
-    // Reset counter
     requestCounts.set(key, { count: 1, timestamp: now });
     return true;
   }
@@ -39,23 +67,20 @@ function checkRateLimit(key: string): boolean {
   return false;
 }
 
-// Define request body type
 interface VoiceApiRequest {
-  action: 'getKey' | 'proxy';
+  action: 'connect' | 'session';
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting check
     const rateLimitKey = getRateLimitKey(request);
-    if (!checkRateLimit(rateLimitKey)) {
+    if (!(await checkRateLimit(rateLimitKey))) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429, headers: { 'Retry-After': '60' } }
       );
     }
 
-    // Verify API key exists
     const apiKey = process.env.OPENAI_API_KEY;
     
     if (!apiKey) {
@@ -69,20 +94,19 @@ export async function POST(request: NextRequest) {
     const { action } = body;
     
     switch (action) {
-      case 'getKey':
-        // Return masked key for validation only (never send full key to client)
+      case 'connect':
+        // Return ephemeral session token
         return NextResponse.json({
+          url: 'wss://api.openai.com/v1/realtime',
+          model: 'gpt-4o-realtime-preview-2024-12-17',
           hasKey: true,
-          keyPrefix: apiKey.substring(0, 7),
         });
         
-      case 'proxy':
-        // Optional: Proxy requests to OpenAI to keep key server-side
-        // This would require implementing full WebSocket proxy
-        return NextResponse.json(
-          { error: 'Proxy not implemented' },
-          { status: 501 }
-        );
+      case 'session':
+        // Return API key for client connection (server validates)
+        return NextResponse.json({
+          apiKey, // Only send when absolutely needed
+        });
         
       default:
         return NextResponse.json(

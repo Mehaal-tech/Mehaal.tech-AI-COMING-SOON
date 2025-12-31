@@ -93,10 +93,26 @@ export function useVoiceControl({
       }, timeoutMs);
 
       try {
-        const hasApiKey = !!process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-        console.log('✓ API key check:', hasApiKey ? 'found' : 'not found');
+        // Check API key via server endpoint
+        const apiCheckResponse = await fetch('/api/voice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'connect' }),
+        });
 
-        if (!hasApiKey) {
+        if (!apiCheckResponse.ok) {
+          console.warn('⚠️ No OpenAI API key configured, using fallback browser voice');
+          setUseFallbackVoice(true);
+          onVoiceError('Using browser voice (OpenAI key not configured)');
+          clearTimeout(connectionTimeoutRef.current!);
+          resolve();
+          return;
+        }
+
+        const { hasKey } = await apiCheckResponse.json();
+        console.log('✓ API key check:', hasKey ? 'found' : 'not found');
+
+        if (!hasKey) {
           console.warn('⚠️ No OpenAI API key found, using fallback browser voice');
           setUseFallbackVoice(true);
           onVoiceError('Using browser voice (OpenAI key not configured)');
@@ -113,12 +129,12 @@ export function useVoiceControl({
 
         console.log('✓ Voice agent ref exists');
 
-        // Initialize and connect voice agent
+        // Initialize and connect voice agent (will fetch key from API)
         voiceAgentRef.current
           .initialize()
           .then(() => {
             console.log('✓ Initialize complete');
-            return voiceAgentRef.current!.connect(process.env.NEXT_PUBLIC_OPENAI_API_KEY!);
+            return voiceAgentRef.current!.connect();
           })
           .then(() => {
             console.log('✓ Connect complete');

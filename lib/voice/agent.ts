@@ -136,7 +136,24 @@ export class VoiceAgentService {
     console.log('🔗 CONNECT METHOD CALLED');
     
     try {
-      const key = apiKey || this.config.apiKey || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
+      let key = apiKey || this.config.apiKey;
+      
+      // Fetch API key from server if not provided
+      if (!key) {
+        console.log('📡 Fetching API key from server...');
+        const response = await fetch('/api/voice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'session' }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch API key from server');
+        }
+        
+        const data = await response.json();
+        key = data.apiKey;
+      }
       
       console.log('✓ Got API key:', key ? 'yes' : 'no');
       
