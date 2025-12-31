@@ -1,7 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+// Create rate limiter
+// 10 requests per 60 seconds per IP
+const ratelimit = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  ? new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.slidingWindow(10, '60 s'),
+      analytics: true,
+    })
+  : null;
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    if (ratelimit) {
+      const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'anonymous';
+      const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+
+      if (!success) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          {
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': limit.toString(),
+              'X-RateLimit-Remaining': remaining.toString(),
+              'X-RateLimit-Reset': new Date(reset).toISOString(),
+            },
+          }
+        );
+      }
+    }
+
     // 1. Server-side key check
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {

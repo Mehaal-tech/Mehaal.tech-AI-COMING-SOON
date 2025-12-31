@@ -15,7 +15,7 @@ const nextConfig = {
   },
   
   // Production optimizations
-  swcMinify: true,
+  //swcMinify: true,
   
   // Headers for security and performance
   async headers() {

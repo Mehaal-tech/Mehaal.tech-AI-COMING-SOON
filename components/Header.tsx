@@ -40,6 +40,7 @@ export default function Header({
               width={logoWidth} 
               height={logoHeight}
               className="h-16 w-auto"
+              sizes="(max-width: 768px) 120px, 180px"
             />
           ) : brandName ? (
             <span className="text-2xl font-bold text-gray-900 dark:text-white">{brandName}</span>

@@ -18,7 +18,6 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'openai-agents-js/',
         '.next/',
         'dist/',
       ],

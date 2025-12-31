@@ -1,3 +1,4 @@
+
 import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "next-themes";
 
@@ -98,6 +99,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
         
+        {/* Preload critical fonts to reduce FOIT/FOUT */}
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/intertight/v7/NGSnv5HMAFg6IuGlBNMjxJEL2VmU3NS7Z2mjDw6qXCRToK8EPg.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/brand/fonts/CabinetGrotesk-Variable.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        
         {/* DNS Prefetch for external APIs */}
         <link rel="dns-prefetch" href="https://api.openai.com" />
         
@@ -123,6 +140,53 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="bg-white dark:bg-black min-h-screen" suppressHydrationWarning>
+        {/* NoScript Fallback for Progressive Enhancement */}
+        <noscript>
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'black',
+              color: 'white',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '2rem',
+              textAlign: 'center',
+              zIndex: 9999,
+            }}
+          >
+            <h1 style={{ fontSize: '3rem', marginBottom: '1rem', color: '#9D00FF' }}>
+              Mehaal.Tech AI
+            </h1>
+            <p style={{ fontSize: '1.5rem', marginBottom: '2rem', maxWidth: '600px' }}>
+              Intelligence Beyond Impossible
+            </p>
+            <div
+              style={{
+                backgroundColor: 'rgba(157, 0, 255, 0.1)',
+                border: '1px solid rgba(157, 0, 255, 0.3)',
+                borderRadius: '1rem',
+                padding: '2rem',
+                maxWidth: '500px',
+              }}
+            >
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>JavaScript Required</h2>
+              <p style={{ color: '#ccc', marginBottom: '1rem' }}>
+                This AI-powered experience requires JavaScript to function. Our voice assistant,
+                real-time interactions, and dynamic features need JavaScript enabled.
+              </p>
+              <p style={{ color: '#9D00FF' }}>
+                Please enable JavaScript in your browser settings and reload the page.
+              </p>
+            </div>
+          </div>
+        </noscript>
+
         {/* Skip to main content link for keyboard navigation */}
         <a
           href="#main-content"

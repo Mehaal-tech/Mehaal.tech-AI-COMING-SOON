@@ -72,8 +72,9 @@ export function PageLayout({ uiPhase, logoStyle, isSpeaking, voiceError }: PageL
           style={logoStyle as any}
           priority
           draggable={false}
-          width={400}
-          height={400}
+          width={500}
+          height={200}
+          sizes="(max-width: 768px) 300px, 500px"
           aria-label={isSpeaking ? ARIA_LABELS.SPEAKING : ARIA_LABELS.LOGO}
         />
 

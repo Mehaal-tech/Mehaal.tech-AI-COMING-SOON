@@ -2,6 +2,7 @@
 
 import { useRef, useCallback } from 'react';
 import { useVoiceControl } from './useVoiceControl';
+import type { LoadingStatus } from './LoadingIndicator';
 
 export interface VoiceControlState {
   isSpeaking: boolean;
@@ -14,9 +15,10 @@ export interface VoiceControlState {
 interface VoiceControlManagerProps {
   onStateChange: (state: Partial<VoiceControlState>) => void;
   onVoiceReady: (ready: boolean) => void;
+  onLoadingStatusChange?: (status: LoadingStatus) => void;
 }
 
-export function useVoiceControlManager({ onStateChange, onVoiceReady }: VoiceControlManagerProps) {
+export function useVoiceControlManager({ onStateChange, onVoiceReady, onLoadingStatusChange }: VoiceControlManagerProps) {
   const smoothedIntensityRef = useRef(0);
   const hasSpokenRef = useRef(false);
   const fallbackAudioContextRef = useRef<AudioContext | null>(null);
@@ -34,6 +36,7 @@ export function useVoiceControlManager({ onStateChange, onVoiceReady }: VoiceCon
     onVoiceError: (voiceError) => onStateChange({ voiceError }),
     onConnectionStateChange: (isConnected) => onStateChange({ isConnected }),
     onReady: onVoiceReady,
+    onLoadingStatusChange,
   });
 
   const analyzeFallbackAudio = useCallback(() => {

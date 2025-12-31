@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { createVoiceAgent, VoiceEventType, type VoiceEventType as VoiceEventTypeType, EmotionType } from 'lib/voice';
+import { getLoadingStatus, type LoadingStatus } from './LoadingIndicator';
+import { analytics } from 'lib/analytics';
+import { errorRecovery, ErrorType } from 'lib/errorRecovery';
 
 interface VoiceControlProps {
   onSpeakingChange: (isSpeaking: boolean) => void;
@@ -10,6 +13,7 @@ interface VoiceControlProps {
   onVoiceError: (error: string) => void;
   onConnectionStateChange: (isConnected: boolean) => void;
   onReady: (isReady: boolean) => void;
+  onLoadingStatusChange?: (status: LoadingStatus) => void;
 }
 
 /**
@@ -23,11 +27,13 @@ export function useVoiceControl({
   onVoiceError,
   onConnectionStateChange,
   onReady,
+  onLoadingStatusChange,
 }: VoiceControlProps) {
   const voiceAgentRef = useRef<ReturnType<typeof createVoiceAgent> | null>(null);
   const isCleaningUpRef = useRef(false);
   const connectionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [useFallbackVoice, setUseFallbackVoice] = useState(false);
+  const connectionStartTime = useRef<number>(0);
 
   // Initialize voice agent
   useEffect(() => {
@@ -77,6 +83,10 @@ export function useVoiceControl({
   const startAudioVisualizer = useCallback(async (timeoutMs: number = 10000) => {
     if (isCleaningUpRef.current) return;
 
+    connectionStartTime.current = Date.now();
+    analytics.track('connection_started');
+    onLoadingStatusChange?.(getLoadingStatus('fetching-token'));
+
     return new Promise<void>(async (resolve, reject) => {
       try {
         // 1. Fetch Token from our secure route
@@ -85,29 +95,51 @@ export function useVoiceControl({
         const data = await response.json();
 
         if (!response.ok || !data.client_secret?.value) {
+           analytics.track('token_failed', { error: data.error });
            throw new Error(data.error || 'Failed to get token');
         }
 
         const ephemeralKey = data.client_secret.value;
         console.log('✓ Token received');
+        analytics.track('token_fetched');
+        onLoadingStatusChange?.(getLoadingStatus('connecting'));
 
         if (!voiceAgentRef.current) throw new Error('Agent not initialized');
 
         // 2. Initialize and Connect with Token
+        onLoadingStatusChange?.(getLoadingStatus('initializing'));
         await voiceAgentRef.current.initialize();
         await voiceAgentRef.current.connect(ephemeralKey);
         
+        const connectionDuration = Date.now() - connectionStartTime.current;
+        analytics.track('connection_success', { duration: connectionDuration });
         onConnectionStateChange(true);
+        onLoadingStatusChange?.(getLoadingStatus('ready'));
         resolve();
 
       } catch (err: any) {
         console.error('❌ Connection Failed:', err);
-        onVoiceError('Connection failed, using fallback.');
+        
+        // Enhanced error handling
+        const errorDetails = errorRecovery.handleError(err, 'connection');
+        analytics.track('connection_failed', { 
+          error: err.message,
+          errorType: errorDetails.type,
+        });
+        
+        onVoiceError(errorDetails.message);
+        onLoadingStatusChange?.(getLoadingStatus('error'));
         setUseFallbackVoice(true);
+        
+        // Log recovery suggestion
+        if (errorDetails.suggestedAction) {
+          console.log('💡 Recovery suggestion:', errorDetails.suggestedAction);
+        }
+        
         resolve();
       }
     });
-  }, [onVoiceError, onConnectionStateChange]);
+  }, [onVoiceError, onConnectionStateChange, onLoadingStatusChange]);
 
   // Speak with browser voice
   const speakWithBrowserVoice = useCallback((text: string): Promise<void> => {
