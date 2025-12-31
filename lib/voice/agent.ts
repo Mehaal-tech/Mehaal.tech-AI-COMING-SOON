@@ -136,37 +136,35 @@ export class VoiceAgentService {
     console.log('🔗 CONNECT METHOD CALLED');
     
     try {
-      let key = apiKey || this.config.apiKey;
+      // 🔒 CRITICAL: Use ephemeral token, NEVER use direct API key
+      let token = apiKey;
       
-      // Fetch API key from server if not provided
-      if (!key) {
-        console.log('📡 Fetching API key from server...');
+      if (!token) {
+        console.log('📡 Fetching ephemeral token from server...');
         const response = await fetch('/api/voice', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'session' }),
+          body: JSON.stringify({ action: 'token' }),
         });
         
         if (!response.ok) {
-          throw new Error('Failed to fetch API key from server');
+          throw new Error(`Failed to fetch token: ${response.status}`);
         }
         
         const data = await response.json();
-        key = data.apiKey;
+        token = data.token;
       }
       
-      console.log('✓ Got API key:', key ? 'yes' : 'no');
+      console.log('✓ Got ephemeral token:', token ? 'yes' : 'no');
       
-      if (!key) {
-        throw new Error('OpenAI API key is required');
+      if (!token) {
+        throw new Error('Ephemeral token is required');
       }
       
-      if (!key.startsWith('sk-')) {
-        throw new Error('Invalid OpenAI API key format');
-      }
-      
-      console.log('🔗 Connecting to OpenAI Realtime API...');
-      console.log('📋 API Key:', key.substring(0, 15) + '...');
+      // Token is temporary and expires in 60 seconds
+      // It can ONLY be used to connect to WebSocket, not for direct API calls
+      console.log('🔗 Connecting to OpenAI Realtime API with ephemeral token...');
+      console.log('📋 Token:', token.substring(0, 15) + '...');
       
       const session = this.session! as any;
       
@@ -180,7 +178,7 @@ export class VoiceAgentService {
         console.log('✓ session.connect method exists');
         
         try {
-          const result = session.connect({ apiKey: key });
+          const result = session.connect({ token });
           console.log('✓ connect() returned:', typeof result);
           
           if (result && typeof result.then === 'function') {
@@ -197,7 +195,7 @@ export class VoiceAgentService {
       } else if (typeof session.start === 'function') {
         console.log('✓ session.start method exists (using instead of connect)');
         try {
-          await session.start({ apiKey: key });
+          await session.start({ token });
           console.log('✓ start() completed');
         } catch (startErr) {
           console.error('❌ Error calling session.start():', startErr);

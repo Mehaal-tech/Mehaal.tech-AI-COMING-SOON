@@ -30,8 +30,44 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Accessibility Classes */
+/* ===========================
+   CUSTOM ANIMATIONS
+   =========================== */
+
+/* Hue cycle animation (replaces JS setInterval) */
+@keyframes animate-hue-cycle {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
 @layer components {
+  /* Apply hue animation to neon glow elements */
+  .animate-hue-cycle {
+    animation: animate-hue-cycle 20s linear infinite;
+  }
+
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-in forwards;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* ===========================
+     ACCESSIBILITY CLASSES
+     =========================== */
+
   /* Screen reader only content */
   .sr-only {
     position: absolute;

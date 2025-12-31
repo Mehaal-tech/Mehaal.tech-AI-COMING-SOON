@@ -14,93 +14,83 @@ export interface AnimationState {
 }
 
 /**
- * Animation Controller Hook
- * Manages UI animation sequence and effects
+ * Helper: Sleep utility for async/await
+ */
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Animation Controller Hook - Refactored for Performance
+ * - Async/await animation sequence (no callback hell)
+ * - Hue cycling moved to pure CSS (no JS setInterval)
+ * - Reduced React re-renders
  */
 export function useAnimationController({ onPhaseChange, onHueChange, onReady }: AnimationControllerProps) {
   const [uiPhase, setUiPhase] = useState(0);
-  const [hue, setHue] = useState(277);
-  const hueIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const timeoutRefsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  // 🔒 REMOVED: hue state is now CSS-driven, no JS updates needed
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Animation sequence
+  // Animation sequence with async/await
   useEffect(() => {
-    const setupAnimation = () => {
-      // Clear previous timeouts
-      timeoutRefsRef.current.forEach((timeout) => clearTimeout(timeout));
-      timeoutRefsRef.current = [];
+    const runAnimationSequence = async () => {
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
 
-      const timer1 = setTimeout(() => {
-        setUiPhase(1); // Emerge
+      try {
+        await sleep(100);
+        if (controller.signal.aborted) return;
+        setUiPhase(1);
         onPhaseChange(1);
 
-        const timer2 = setTimeout(() => {
-          setUiPhase(2); // Glow
-          onPhaseChange(2);
+        await sleep(1000);
+        if (controller.signal.aborted) return;
+        setUiPhase(2);
+        onPhaseChange(2);
 
-          const timer3 = setTimeout(() => {
-            setUiPhase(3); // Flash
-            onPhaseChange(3);
+        await sleep(2500);
+        if (controller.signal.aborted) return;
+        setUiPhase(3);
+        onPhaseChange(3);
 
-            const timer4 = setTimeout(() => {
-              setUiPhase(4); // Ready
-              onPhaseChange(4);
-              onReady();
-            }, 3000);
-
-            timeoutRefsRef.current.push(timer4);
-          }, 2500);
-
-          timeoutRefsRef.current.push(timer3);
-        }, 1000);
-
-        timeoutRefsRef.current.push(timer2);
-      }, 100);
-
-      timeoutRefsRef.current.push(timer1);
+        await sleep(3000);
+        if (controller.signal.aborted) return;
+        setUiPhase(4);
+        onPhaseChange(4);
+        onReady();
+      } catch (error) {
+        console.error('Animation sequence error:', error);
+      }
     };
 
-    setupAnimation();
+    runAnimationSequence();
 
     return () => {
-      timeoutRefsRef.current.forEach((timeout: ReturnType<typeof setTimeout>) => clearTimeout(timeout));
-      timeoutRefsRef.current = [];
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
     };
   }, [onPhaseChange, onReady]);
 
-  // Color cycling
-  useEffect(() => {
-    if (uiPhase < 4) return;
+  // 🔒 REMOVED: setInterval hue loop
+  // CSS animation handles hue-rotate in globals.css
+  // This eliminates ~20 React re-renders per second!
 
-    hueIntervalRef.current = setInterval(() => {
-      setHue((prev: number) => {
-        const newHue = (prev + 0.5) % 360;
-        onHueChange(newHue);
-        return newHue;
-      });
-    }, 50);
-
-    return () => {
-      if (hueIntervalRef.current) {
-        clearInterval(hueIntervalRef.current);
-      }
-    };
-  }, [uiPhase, onHueChange]);
-
-  return { uiPhase, hue, hueIntervalRef, timeoutRefsRef };
+  return { uiPhase, hue: 277 }; // Return constant hue (CSS handles animation)
 }
 
 /**
  * Get logo animation styles based on phase
+ * Optimized for audio reactivity with minimal recalculation
  */
 export function useLogoStyle(uiPhase: number, hue: number, intensity: number, isSpeaking: boolean) {
   return useMemo(() => {
     const baseTransition = 'all 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
     const dynamicIntensity = Math.max(20, intensity * 0.8);
+    
+    // Optimized glow using CSS variables for easy DOM updates
     const neonGlow = `
       drop-shadow(0 0 ${dynamicIntensity}px hsl(${hue}, 100%, 60%)) 
-      drop-shadow(0 0 ${dynamicIntensity * 2}px hsl(${hue}, 100%, 50%)) 
-      drop-shadow(0 0 ${dynamicIntensity * 3}px hsl(${hue}, 100%, 40%))
+      drop-shadow(0 0 ${Math.round(dynamicIntensity * 2)}px hsl(${hue}, 100%, 50%)) 
+      drop-shadow(0 0 ${Math.round(dynamicIntensity * 3)}px hsl(${hue}, 100%, 40%))
     `;
 
     switch (uiPhase) {

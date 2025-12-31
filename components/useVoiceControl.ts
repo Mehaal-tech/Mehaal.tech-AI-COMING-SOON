@@ -93,29 +93,35 @@ export function useVoiceControl({
       }, timeoutMs);
 
       try {
-        // Check API key via server endpoint
-        const apiCheckResponse = await fetch('/api/voice', {
+        // 🔒 CRITICAL: Fetch ephemeral token from server (NOT API key)
+        console.log('📍 Fetching ephemeral token from server...');
+        const tokenResponse = await fetch('/api/voice', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'connect' }),
+          body: JSON.stringify({ action: 'token' }),
         });
 
-        if (!apiCheckResponse.ok) {
-          console.warn('⚠️ No OpenAI API key configured, using fallback browser voice');
+        if (!tokenResponse.ok) {
+          if (tokenResponse.status === 429) {
+            console.warn('⚠️ Rate limited, using fallback browser voice');
+            onVoiceError('Rate limited - please try again later');
+          } else {
+            console.warn('⚠️ No OpenAI API key configured, using fallback browser voice');
+            onVoiceError('Voice service not available');
+          }
           setUseFallbackVoice(true);
-          onVoiceError('Using browser voice (OpenAI key not configured)');
           clearTimeout(connectionTimeoutRef.current!);
           resolve();
           return;
         }
 
-        const { hasKey } = await apiCheckResponse.json();
-        console.log('✓ API key check:', hasKey ? 'found' : 'not found');
+        const { token, expiresIn } = await tokenResponse.json();
+        console.log('✅ Ephemeral token received (expires in', expiresIn, 'seconds)');
 
-        if (!hasKey) {
-          console.warn('⚠️ No OpenAI API key found, using fallback browser voice');
+        if (!token) {
+          console.warn('⚠️ No token in response, using fallback browser voice');
           setUseFallbackVoice(true);
-          onVoiceError('Using browser voice (OpenAI key not configured)');
+          onVoiceError('Failed to get voice token');
           clearTimeout(connectionTimeoutRef.current!);
           resolve();
           return;
@@ -127,14 +133,15 @@ export function useVoiceControl({
           return;
         }
 
-        console.log('✓ Voice agent ref exists');
+        console.log('✓ Voice agent ref exists, connecting with ephemeral token...');
 
-        // Initialize and connect voice agent (will fetch key from API)
+        // Initialize and connect voice agent with ephemeral token (NOT API key)
         voiceAgentRef.current
           .initialize()
           .then(() => {
             console.log('✓ Initialize complete');
-            return voiceAgentRef.current!.connect();
+            // Pass ephemeral token, NOT the API key
+            return voiceAgentRef.current!.connect(token);
           })
           .then(() => {
             console.log('✓ Connect complete');
