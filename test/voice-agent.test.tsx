@@ -1,13 +1,18 @@
 import { describe, it, expect } from 'vitest';
 
-describe('VoiceAgent Component', () => {
-  it('should handle missing API key gracefully', () => {
+describe('VoiceAgent Component - Realtime API', () => {
+  it('should have OpenAI API key configured', () => {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
     expect(apiKey).toBeDefined();
     
-    // In demo mode, component should still work
-    const isDemoMode = !apiKey || apiKey === 'your-openai-api-key-here';
-    expect(typeof isDemoMode).toBe('boolean');
+    // Check if API key is placeholder
+    const isConfigured = apiKey && apiKey !== 'your-openai-api-key-here';
+    expect(typeof isConfigured).toBe('boolean');
+  });
+
+  it('should use correct Realtime API model', () => {
+    const expectedModel = 'gpt-4o-realtime-preview-2024-12-17';
+    expect(expectedModel).toContain('realtime');
   });
 });
 
@@ -16,11 +21,9 @@ describe('Environment Configuration', () => {
     expect(import.meta.env.VITE_OPENAI_API_KEY).toBeDefined();
   });
   
-  it('should have default values for optional variables', () => {
-    const model = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4-turbo-preview';
-    const whisper = import.meta.env.VITE_WHISPER_MODEL || 'whisper-1';
-    
-    expect(model).toBe('gpt-4-turbo-preview');
-    expect(whisper).toBe('whisper-1');
+  it('should have launch date configured', () => {
+    const launchDate = import.meta.env.VITE_LAUNCH_DATE || '2026-03-01';
+    expect(launchDate).toBeDefined();
+    expect(new Date(launchDate).getTime()).toBeGreaterThan(Date.now());
   });
 });

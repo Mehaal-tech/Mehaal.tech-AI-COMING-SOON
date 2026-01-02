@@ -5,8 +5,8 @@
 ## 🚀 Features
 
 - ✨ Stunning Animated Landing Page with multi-stage neon animations
-- 🎤 AI Voice Agent powered by OpenAI Whisper & GPT-4
-- 🗣️ Text-to-Speech with natural voice responses
+- 🎤 AI Voice Agent powered by OpenAI Realtime API (Speech-to-Speech)
+- 🔊 Real-time bidirectional voice conversation
 - ⏱️ Live Countdown Timer to launch date
 - 📧 Email Subscriptions with API integration
 - 🔗 Social Media Integration
@@ -55,10 +55,8 @@ pnpm start
 
 ## 📝 Environment Variables
 
-- `VITE_OPENAI_API_KEY` - OpenAI API key (required)
+- `VITE_OPENAI_API_KEY` - OpenAI API key (required for Realtime API)
 - `VITE_LAUNCH_DATE` - Target launch date (default: 2026-03-01)
-- `VITE_OPENAI_MODEL` - GPT model (default: gpt-4-turbo-preview)
-- `VITE_WHISPER_MODEL` - Whisper model (default: whisper-1)
 
 ## 🧪 Testing
 
