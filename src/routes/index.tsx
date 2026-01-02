@@ -1,59 +1,113 @@
 import HeroAnimation from "~/components/HeroAnimation";
 
 export default function Home() {
+  console.log("Home component rendering");
+  
   return (
-    <div class="relative w-screen h-screen overflow-hidden bg-black">
+    <div style={{
+      position: "relative",
+      width: "100vw",
+      height: "100vh",
+      overflow: "hidden",
+      background: "#000"
+    }}>
       {/* Header Section with animated background */}
-      <header class="absolute top-0 left-0 right-0 h-20 z-10 overflow-hidden">
+      <header style={{
+        position: "absolute",
+        top: "0",
+        left: "0",
+        right: "0",
+        height: "80px",
+        "z-index": "10",
+        overflow: "hidden"
+      }}
+      role="banner">
         <div 
-          class="absolute inset-0 opacity-30"
           style={{
+            position: "absolute",
+            inset: "0",
+            opacity: "0.3",
             "background-image": "url(/backgroundh.png)",
             "background-size": "auto 100%",
             "background-repeat": "repeat-x",
-            "animation": "scroll-bg 30s linear infinite"
+            animation: "scroll-bg 30s linear infinite",
+            "will-change": "background-position"
           }}
+          aria-hidden="true"
         />
       </header>
 
       {/* Main Body Section with animated background */}
-      <main class="absolute inset-0 overflow-hidden">
+      <main style={{
+        position: "absolute",
+        inset: "0",
+        overflow: "hidden"
+      }}
+      role="main">
         <div 
-          class="absolute inset-0 opacity-20"
           style={{
+            position: "absolute",
+            inset: "0",
+            opacity: "0.2",
             "background-image": "url(/background.png)",
             "background-size": "auto 100%",
             "background-repeat": "repeat-x",
-            "animation": "scroll-bg 40s linear infinite"
+            animation: "scroll-bg 40s linear infinite",
+            "will-change": "background-position"
           }}
+          aria-hidden="true"
         />
         
         {/* Hero Animation */}
-        <div class="relative w-full h-full">
+        <div style={{
+          position: "relative",
+          width: "100%",
+          height: "100%"
+        }}>
           <HeroAnimation />
         </div>
       </main>
 
       {/* Footer Section with animated background */}
-      <footer class="absolute bottom-0 left-0 right-0 h-20 z-10 overflow-hidden flex items-center justify-center">
+      <footer style={{
+        position: "absolute",
+        bottom: "0",
+        left: "0",
+        right: "0",
+        height: "80px",
+        "z-index": "10",
+        overflow: "hidden",
+        display: "flex",
+        "align-items": "center",
+        "justify-content": "center"
+      }}
+      role="contentinfo">
         <div 
-          class="absolute inset-0 opacity-30"
           style={{
+            position: "absolute",
+            inset: "0",
+            opacity: "0.3",
             "background-image": "url(/backgroundh.png)",
             "background-size": "auto 100%",
             "background-repeat": "repeat-x",
-            "animation": "scroll-bg 30s linear infinite"
+            animation: "scroll-bg 30s linear infinite",
+            "will-change": "background-position"
           }}
+          aria-hidden="true"
         />
         
         {/* Footer Logo */}
         <img 
           src="/footer-logo.png" 
-          alt="Footer Logo" 
-          class="relative h-16 object-contain z-10"
+          alt="Mehaal.tech - Powered by AI" 
           style={{
+            position: "relative",
+            height: "64px",
+            "object-fit": "contain",
+            "z-index": "10",
             filter: "drop-shadow(0 0 8px rgba(0, 255, 255, 0.4))"
           }}
+          loading="lazy"
         />
       </footer>
     </div>

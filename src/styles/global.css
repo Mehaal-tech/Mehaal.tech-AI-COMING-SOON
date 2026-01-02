@@ -80,3 +80,66 @@ body {
   0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); }
   50% { transform: scale(1.1); box-shadow: 0 0 40px rgba(0, 255, 255, 0.8); }
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  html, body, #app {
+    overflow-x: hidden;
+  }
+
+  /* Adjust animation timings for mobile */
+  @keyframes neon-glow-expand {
+    0% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+    50% { box-shadow: 0 0 50vw 50vh rgba(0, 255, 255, 0.4); }
+    100% { box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); }
+  }
+
+  /* Faster scroll for mobile */
+  @keyframes scroll-bg {
+    0% { background-position: 0 0; }
+    100% { background-position: -500px 0; }
+  }
+}
+
+@media (max-width: 640px) {
+  /* Mobile font sizes */
+  body {
+    font-size: 14px;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  body {
+    background: #000;
+    color: #fff;
+  }
+  
+  .text-cyan-300 {
+    color: #00ffff !important;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+:focus-visible {
+  outline: 2px solid rgba(0, 255, 255, 0.8);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

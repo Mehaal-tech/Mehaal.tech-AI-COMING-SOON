@@ -1,5 +1,8 @@
 import { createSignal, onMount, Show, For } from "solid-js";
 import VoiceAgent from "./VoiceAgent";
+import CountdownTimer from "./CountdownTimer";
+import EmailSubscription from "./EmailSubscription";
+import SocialLinks from "./SocialLinks";
 
 interface Message {
   text: string;
@@ -13,6 +16,8 @@ export default function HeroAnimation() {
   const [currentMessage, setCurrentMessage] = createSignal<Message | null>(null);
   const [logoPosition, setLogoPosition] = createSignal<'center' | 'up' | 'left' | 'right'>('center');
 
+  console.log("HeroAnimation mounted, stage:", stage());
+
   // Demo greeting messages from AI agent
   const greetingMessages = [
     { text: "Welcome to Mehaal.tech! We're revolutionizing AI-powered voice interactions.", side: 'left' as const },
@@ -23,8 +28,12 @@ export default function HeroAnimation() {
   let messageIndex = 0;
 
   onMount(() => {
+    console.log("Starting animation sequence");
     // Stage 0: Black screen (0-1s)
-    setTimeout(() => setStage(1), 1000);
+    setTimeout(() => {
+      console.log("Stage 1: Logo emerges");
+      setStage(1);
+    }, 1000);
     
     // Stage 1: Logo emerges (1-2.5s)
     setTimeout(() => setStage(2), 2500);
@@ -134,14 +143,15 @@ export default function HeroAnimation() {
             classList={{
               "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2": logoPosition() === 'center',
               "top-24 left-1/2 -translate-x-1/2": logoPosition() === 'up',
-              "top-1/2 left-32 -translate-y-1/2": logoPosition() === 'right',
-              "top-1/2 right-32 -translate-y-1/2": logoPosition() === 'left',
+              "top-1/2 left-32 -translate-y-1/2 md:left-32 left-16": logoPosition() === 'right',
+              "top-1/2 right-32 -translate-y-1/2 md:right-32 right-16": logoPosition() === 'left',
             }}
           >
             <img 
               src="/brand/LOGO-LIGHT.png" 
-              alt="Logo"
-              class="w-48 h-48 object-contain"
+              alt="Mehaal.tech Logo - AI Voice Platform"
+              class="w-32 h-32 md:w-48 md:h-48 object-contain"
+              loading="eager"
               style={{
                 filter: stage() >= 3 
                   ? "drop-shadow(0 0 8px rgba(0, 255, 255, 0.6)) drop-shadow(0 0 16px rgba(0, 255, 255, 0.4))"
@@ -154,9 +164,9 @@ export default function HeroAnimation() {
           {/* "Launching Soon" text */}
           <Show when={stage() >= 5}>
             <div 
-              class="absolute transition-all duration-1000"
+              class="absolute transition-all duration-1000 w-full"
               classList={{
-                "top-80 left-1/2 -translate-x-1/2": logoPosition() === 'up',
+                "top-64 md:top-80": logoPosition() === 'up',
                 "opacity-100": stage() >= 5,
                 "opacity-0": stage() < 5,
               }}
@@ -164,23 +174,36 @@ export default function HeroAnimation() {
                 animation: stage() === 5 ? "fade-in 1s ease-out forwards" : "none"
               }}
             >
-              <h1 class="text-6xl font-bold text-cyan-300 tracking-wider"
-                  style={{
-                    "text-shadow": "0 0 20px rgba(0, 255, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.4)",
-                    "font-family": "CabinetGrotesk-Variable, sans-serif"
-                  }}>
-                Launching Soon
-              </h1>
+              <div class="flex flex-col items-center gap-8">
+                <h1 class="text-3xl md:text-5xl lg:text-6xl font-bold text-cyan-300 tracking-wider text-center px-4"
+                    style={{
+                      "text-shadow": "0 0 20px rgba(0, 255, 255, 0.6), 0 0 40px rgba(0, 255, 255, 0.4)",
+                      "font-family": "CabinetGrotesk-Variable, sans-serif"
+                    }}
+                    role="heading"
+                    aria-level="1">
+                  Launching Soon
+                </h1>
+                
+                {/* Countdown Timer */}
+                <CountdownTimer />
+                
+                {/* Email Subscription */}
+                <EmailSubscription />
+                
+                {/* Social Links */}
+                <SocialLinks />
+              </div>
             </div>
           </Show>
 
           {/* Message Cards */}
           <Show when={currentMessage()}>
             <div 
-              class="absolute top-1/2 -translate-y-1/2 max-w-md z-10"
+              class="absolute top-1/2 -translate-y-1/2 max-w-md z-10 mx-4 md:mx-0"
               classList={{
-                "left-16": currentMessage()!.side === 'left',
-                "right-16": currentMessage()!.side === 'right',
+                "left-4 md:left-16": currentMessage()!.side === 'left',
+                "right-4 md:right-16": currentMessage()!.side === 'right',
               }}
               style={{
                 animation: currentMessage()!.side === 'left' 
@@ -188,11 +211,13 @@ export default function HeroAnimation() {
                   : "slide-in-right 0.5s ease-out forwards"
               }}
             >
-              <div class="bg-black/80 backdrop-blur-lg border border-cyan-500/30 rounded-2xl p-6 shadow-2xl"
+              <div class="bg-black/80 backdrop-blur-lg border border-cyan-500/30 rounded-2xl p-4 md:p-6 shadow-2xl"
                    style={{
                      "box-shadow": "0 0 30px rgba(0, 255, 255, 0.3)"
-                   }}>
-                <p class="text-cyan-100 text-lg leading-relaxed"
+                   }}
+                   role="alert"
+                   aria-live="polite">
+                <p class="text-cyan-100 text-sm md:text-lg leading-relaxed"
                    style={{
                      "font-family": "CabinetGrotesk-Variable, sans-serif"
                    }}>
@@ -205,11 +230,13 @@ export default function HeroAnimation() {
           {/* Microphone - Push to Talk */}
           <Show when={showMic()}>
             <div 
-              class="absolute bottom-20 left-1/2 -translate-x-1/2 z-30"
+              class="absolute bottom-12 md:bottom-20 left-1/2 -translate-x-1/2 z-30"
               style={{
                 animation: "fade-in 1s ease-out forwards"
               }}
-            >
+              role="region"
+              aria-label="Voice interaction">
+
               <VoiceAgent 
                 onTranscript={handleTranscript}
                 onSpeechStart={() => console.log("Speech started")}

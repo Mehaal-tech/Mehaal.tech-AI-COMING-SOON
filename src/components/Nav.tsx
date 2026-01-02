@@ -11,25 +11,37 @@ export default function Nav() {
   const isHomePage = () => location.pathname === "/";
 
   return (
-    <nav class="absolute top-0 left-0 right-0 z-50 bg-transparent">
-      <Show when={!isHomePage()}>
-        <ul class="container flex items-center p-3 text-gray-200 bg-sky-800">
-          <li class={`border-b-2 ${active("/")} mx-1.5 sm:mx-6`}>
+    <Show when={!isHomePage()}>
+      <nav style={{
+        position: "absolute",
+        top: "0",
+        left: "0",
+        right: "0",
+        "z-index": "50",
+        background: "rgb(7 89 133)"
+      }}>
+        <ul style={{
+          display: "flex",
+          "align-items": "center",
+          padding: "0.75rem",
+          color: "rgb(229 231 235)",
+          "max-width": "1280px",
+          margin: "0 auto"
+        }}>
+          <li style={{
+            "border-bottom": location.pathname === "/" ? "2px solid rgb(2 132 199)" : "2px solid transparent",
+            margin: "0 1.5rem"
+          }}>
             <a href="/">Home</a>
           </li>
-          <li class={`border-b-2 ${active("/about")} mx-1.5 sm:mx-6`}>
+          <li style={{
+            "border-bottom": location.pathname === "/about" ? "2px solid rgb(2 132 199)" : "2px solid transparent",
+            margin: "0 1.5rem"
+          }}>
             <a href="/about">About</a>
           </li>
         </ul>
-      </Show>
-      <Show when={isHomePage()}>
-        {/* Empty nav placeholder for home page - "Launching Soon" will appear here later via animation */}
-        <div class="h-20 flex items-center justify-center">
-          <div id="nav-launching-soon-placeholder" class="text-transparent">
-            {/* Placeholder for animated content */}
-          </div>
-        </div>
-      </Show>
-    </nav>
+      </nav>
+    </Show>
   );
 }

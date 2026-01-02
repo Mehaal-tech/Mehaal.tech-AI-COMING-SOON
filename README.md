@@ -1,32 +1,75 @@
-# SolidStart
+# Mehaal.tech - AI Voice Platform Coming Soon
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+**Revolutionary AI-powered voice interaction platform**
 
-## Creating a project
+## 🚀 Features
+
+- ✨ Stunning Animated Landing Page with multi-stage neon animations
+- 🎤 AI Voice Agent powered by OpenAI Whisper & GPT-4
+- 🗣️ Text-to-Speech with natural voice responses
+- ⏱️ Live Countdown Timer to launch date
+- 📧 Email Subscriptions with API integration
+- 🔗 Social Media Integration
+- 📱 Fully Responsive design
+- 🎯 SEO Optimized with meta tags and structured data
+- ♿ Accessibility features (ARIA, keyboard navigation)
+- 🚀 Performance optimized (lazy loading, service worker)
+- 🛡️ Error boundaries and comprehensive error handling
+
+## 🛠️ Installation
 
 ```bash
-# create a new project in the current directory
-npm init solid@latest
+# Install dependencies
+pnpm install
 
-# create a new project in my-app
-npm init solid@latest my-app
+# Configure environment
+cp .env.example .env
+# Edit .env and add your OpenAI API key
+
+# Start development server
+pnpm dev
 ```
 
-## Developing
+## 📁 Project Structure
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- **src/components/** - Reusable UI components
+- **src/routes/** - File-based routing and API endpoints
+- **src/styles/** - Global styles and animations
+- **public/** - Static assets and brand materials
+
+## 🎮 Usage
+
+1. Voice Interaction: Press and hold microphone to speak
+2. Email Subscription: Enter email to get notified at launch
+3. Countdown Timer: Automatically counts to launch date
+
+## 🏗️ Build & Deploy
 
 ```bash
-npm run dev
+# Build for production
+pnpm build
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# Start production server
+pnpm start
 ```
 
-## Building
+## 📝 Environment Variables
 
-Solid apps are built with _presets_, which optimise your project for deployment to different environments.
+- `VITE_OPENAI_API_KEY` - OpenAI API key (required)
+- `VITE_LAUNCH_DATE` - Target launch date (default: 2026-03-01)
+- `VITE_OPENAI_MODEL` - GPT model (default: gpt-4-turbo-preview)
+- `VITE_WHISPER_MODEL` - Whisper model (default: whisper-1)
 
-By default, `npm run build` will generate a Node app that you can run with `npm start`. To use a different preset, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
+## 🧪 Testing
 
-## This project was created with the [Solid CLI](https://github.com/solidjs-community/solid-cli)
+```bash
+pnpm test
+```
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+---
+
+Made with ❤️ by the Mehaal.tech team
