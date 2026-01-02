@@ -3,6 +3,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'CabinetGrotesk';
+  src: url('/CabinetGrotesk-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* AI-focused dark theme with neon accents */
   --background: oklch(0.08 0 0);
@@ -138,4 +146,13 @@
 
 .animate-fade-in {
   animation: fade-in 0.5s ease-out;
+}
+
+/* Hide scrollbars */
+html {
+  scrollbar-width: none; /* Firefox */
+}
+
+::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
 }

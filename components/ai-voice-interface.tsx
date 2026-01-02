@@ -53,7 +53,7 @@ export function AIVoiceInterface() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 pt-24 pb-16">
+    <div className="h-full flex items-center justify-center px-4">
       <div className="w-full max-w-6xl">
         {isLogoCenter ? (
           <div className="flex flex-col items-center justify-center gap-8">

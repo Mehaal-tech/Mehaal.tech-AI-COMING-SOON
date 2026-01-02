@@ -3,22 +3,26 @@
 import { useState, useEffect } from "react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
+import { useTheme } from "next-themes"
+import { Moon, Sun } from "lucide-react"
 
 export function Header() {
   const [isVisible, setIsVisible] = useState(false)
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setTimeout(() => setIsVisible(true), 300)
   }, [])
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 overflow-hidden">
+    <header className="w-full z-40 overflow-hidden">
       {/* Animated header background */}
       <div
         className="absolute inset-0 opacity-30"
         style={{
-          backgroundImage: "url(/placeholder.svg?height=200&width=3840&query=abstract+tech+circuit+pattern)",
-          backgroundSize: "cover",
+          backgroundImage: "url(/backgroundh.png)",
+          backgroundSize: "auto",
+          backgroundRepeat: "repeat-x",
           animation: "slideBackground 40s linear infinite",
         }}
       />
@@ -51,12 +55,23 @@ export function Header() {
               </nav>
             </div>
 
-            <Button
-              variant="outline"
-              className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20 bg-transparent"
-            >
-              Get Started
-            </Button>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20 bg-transparent"
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+
+              <Button
+                variant="outline"
+                className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20 bg-transparent"
+              >
+                Get Started
+              </Button>
+            </div>
           </div>
         </div>
       </div>

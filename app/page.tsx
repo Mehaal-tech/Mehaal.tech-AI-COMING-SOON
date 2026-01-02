@@ -10,16 +10,16 @@ export default function Home() {
   const [loadingComplete, setLoadingComplete] = useState(false)
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black">
+    <div className="flex flex-col h-screen overflow-hidden bg-black">
       {/* Animated background */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-50">
         <div
           className="absolute inset-0 opacity-20"
           style={{
             backgroundImage:
-              "url(/placeholder.svg?height=1080&width=1920&query=abstract+digital+neural+network+pattern)",
+              "url(/background.png)",
             backgroundSize: "cover",
-            animation: "slideBackground 60s linear infinite",
+            animation: "slideBackground 60s infinite",
           }}
         />
       </div>
@@ -29,7 +29,7 @@ export default function Home() {
       ) : (
         <>
           <Header />
-          <main className="relative z-10">
+          <main className="flex-1 relative z-10">
             <AIVoiceInterface />
           </main>
           <Footer />

@@ -13,8 +13,8 @@ export function LoadingAnimation({ onComplete }: LoadingAnimationProps) {
   useEffect(() => {
     const timeline = [
       { stage: "emerge", delay: 500 },
-      { stage: "glow-expand", delay: 2000 },
-      { stage: "glow-contract", delay: 2500 },
+      { stage: "glow-expand", delay: 1500 },
+      { stage: "glow-contract", delay: 2000 },
       { stage: "complete", delay: 1500 },
     ]
 
@@ -35,18 +35,19 @@ export function LoadingAnimation({ onComplete }: LoadingAnimationProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-      {/* Full screen glow overlay */}
+      {/* Glow effect from logo */}
       <div
-        className={`absolute inset-0 transition-opacity duration-1000 ${
-          stage === "glow-expand" ? "opacity-100" : "opacity-0"
+        className={`absolute inset-0 flex items-center justify-center transition-all duration-1000 ${
+          stage === "glow-expand" ? "scale-100 opacity-100" :
+          stage === "glow-contract" ? "scale-50 opacity-80" :
+          "scale-0 opacity-0"
         }`}
         style={{
-          background:
-            "radial-gradient(circle, rgba(147,51,234,0.4) 0%, rgba(236,72,153,0.3) 25%, rgba(59,130,246,0.3) 50%, rgba(16,185,129,0.2) 75%, transparent 100%)",
+          background: "radial-gradient(circle, rgba(147,51,234,0.8) 0%, rgba(147,51,234,0.4) 30%, rgba(147,51,234,0.2) 50%, transparent 70%)",
         }}
       />
 
-      {/* Logo with glow */}
+      {/* Logo */}
       <div
         className={`relative transition-all duration-700 ${
           stage === "emerge" ? "scale-0 opacity-0" : "scale-100 opacity-100"
@@ -54,8 +55,8 @@ export function LoadingAnimation({ onComplete }: LoadingAnimationProps) {
       >
         <Logo
           size="large"
-          glowIntensity={stage === "glow-expand" || stage === "glow-contract" ? "high" : "medium"}
-          animated
+          glowIntensity="none"
+          animated={false}
         />
       </div>
     </div>

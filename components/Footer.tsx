@@ -1,29 +1,25 @@
 "use client"
 
-import { Logo } from "@/components/logo"
-
 export function Footer() {
   return (
-    <footer className="relative z-20 overflow-hidden mt-20">
+    <footer className="relative z-20 overflow-hidden">
       {/* Animated footer background */}
       <div
         className="absolute inset-0 opacity-30"
         style={{
-          backgroundImage: "url(/placeholder.svg?height=200&width=3840&query=abstract+tech+circuit+pattern)",
-          backgroundSize: "cover",
+          backgroundImage: "url(/backgroundh.png)",
+          backgroundSize: "auto",
+          backgroundRepeat: "repeat-x",
           animation: "slideBackground 40s linear infinite",
         }}
       />
 
       <div className="relative backdrop-blur-md bg-black/50 border-t border-purple-500/20">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
             {/* Footer Logo */}
             <div className="flex items-center gap-3">
-              <Logo size="small" glowIntensity="low" />
-              <div className="text-sm text-gray-400">
-                <p>AI Voice Agent Platform</p>
-              </div>
+              <img src="/footer-logo.png" alt="Footer Logo" className="h-10 w-auto" />
             </div>
 
             {/* Links */}
@@ -41,8 +37,7 @@ export function Footer() {
 
             {/* Copyright */}
             <div className="text-sm text-gray-400 text-center md:text-right">
-              <p>&copy; 2026 AI Voice Agent. All rights reserved.</p>
-              <p className="text-xs mt-1">Registered Trademark ®</p>
+              <p>&copy; 2026 AI Voice Agent. All rights reserved. Registered Trademark ®</p>
             </div>
           </div>
         </div>
