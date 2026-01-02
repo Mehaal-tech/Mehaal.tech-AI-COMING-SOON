@@ -53,60 +53,43 @@ export default function EmailSubscription() {
   };
 
   return (
-    <div class="w-full max-w-md mx-auto px-4">
-      <form onSubmit={handleSubmit} class="space-y-4">
-        <div>
-          <label 
-            for="email-subscription" 
-            class="block text-cyan-300 text-sm font-medium mb-2"
+    <div class="w-full max-w-sm mx-auto">
+      <form onSubmit={handleSubmit}>
+        <div class="flex gap-2">
+          <input
+            id="email-subscription"
+            type="email"
+            value={email()}
+            onInput={(e) => setEmail(e.currentTarget.value)}
+            placeholder="Enter your email"
+            required
+            disabled={isSubmitting()}
+            class="flex-1 px-3 py-2 bg-black/40 border border-purple-500/30 rounded-lg text-white text-sm placeholder-purple-300/40 focus:outline-none focus:border-purple-400 transition-all disabled:opacity-50"
+            style={{ "font-family": "CabinetGrotesk-Variable, sans-serif" }}
+          />
+          <button
+            type="submit"
+            disabled={isSubmitting()}
+            class="px-4 py-2 text-white text-sm font-medium rounded-lg hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
             style={{
-              "font-family": "CabinetGrotesk-Variable, sans-serif"
+              "font-family": "CabinetGrotesk-Variable, sans-serif",
+              background: "linear-gradient(135deg, #7c6aef 0%, #5b4cc4 100%)",
+              "box-shadow": "0 0 15px rgba(124, 106, 239, 0.3)"
             }}
           >
-            Get notified when we launch
-          </label>
-          <div class="flex gap-2">
-            <input
-              id="email-subscription"
-              type="email"
-              value={email()}
-              onInput={(e) => setEmail(e.currentTarget.value)}
-              placeholder="Enter your email"
-              required
-              disabled={isSubmitting()}
-              class="flex-1 px-4 py-3 bg-black/50 border border-cyan-500/30 rounded-lg text-white placeholder-cyan-300/50 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition-all disabled:opacity-50"
-              style={{
-                "font-family": "CabinetGrotesk-Variable, sans-serif"
-              }}
-              aria-describedby="subscription-message"
-            />
-            <button
-              type="submit"
-              disabled={isSubmitting()}
-              class="px-6 py-3 bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-medium rounded-lg hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{
-                "font-family": "CabinetGrotesk-Variable, sans-serif",
-                "box-shadow": "0 0 20px rgba(0, 255, 255, 0.3)"
-              }}
-              aria-label={isSubmitting() ? "Subscribing..." : "Subscribe"}
-            >
-              <Show when={!isSubmitting()} fallback="...">
-                Notify Me
-              </Show>
-            </button>
-          </div>
+            <Show when={!isSubmitting()} fallback="...">
+              Notify Me
+            </Show>
+          </button>
         </div>
         
         <Show when={message()}>
           <div 
-            id="subscription-message"
-            class="text-sm font-medium px-4 py-2 rounded-lg"
+            class="text-xs font-medium px-3 py-1.5 rounded mt-2"
             classList={{
-              "bg-green-500/20 text-green-300 border border-green-500/30": message()!.type === 'success',
-              "bg-red-500/20 text-red-300 border border-red-500/30": message()!.type === 'error',
+              "bg-green-500/20 text-green-300": message()!.type === 'success',
+              "bg-red-500/20 text-red-300": message()!.type === 'error',
             }}
-            role="alert"
-            aria-live="polite"
           >
             {message()!.text}
           </div>

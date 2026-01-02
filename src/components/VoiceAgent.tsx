@@ -327,18 +327,18 @@ export default function VoiceAgent(props: VoiceAgentProps) {
   });
 
   return (
-    <div class="flex flex-col items-center gap-4">
+    <div class="flex flex-col items-center gap-3">
       {/* Connection Status */}
-      <div class="flex items-center gap-2 mb-2">
+      <div class="flex items-center gap-2">
         <div 
           class="w-2 h-2 rounded-full"
           classList={{
-            "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]": isConnected(),
-            "bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.8)]": !isConnected() && !error(),
-            "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]": !!error(),
+            "bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.8)]": isConnected(),
+            "bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.8)]": !isConnected() && !error(),
+            "bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)]": !!error(),
           }}
         />
-        <span class="text-xs text-cyan-300/70">
+        <span class="text-xs text-purple-300/70" style={{ "font-family": "CabinetGrotesk-Variable, sans-serif" }}>
           {isConnected() ? "Connected" : error() ? "Disconnected" : "Ready"}
         </span>
       </div>
@@ -346,68 +346,60 @@ export default function VoiceAgent(props: VoiceAgentProps) {
       <button
         onClick={toggleConversation}
         disabled={isProcessing() || isSpeaking()}
-        class="relative w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 
+        class="relative w-16 h-16 md:w-18 md:h-18 rounded-full 
                flex items-center justify-center cursor-pointer transition-all duration-300
-               hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+               hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         classList={{
-          "animate-[mic-pulse_1.5s_ease-in-out_infinite]": isListening(),
-          "ring-4 ring-cyan-400/50": isConnected() && isListening(),
+          "animate-[mic-pulse_2s_ease-in-out_infinite]": isListening(),
         }}
         style={{
+          background: "linear-gradient(135deg, #7c6aef 0%, #5b4cc4 100%)",
           "box-shadow": isListening() 
-            ? "0 0 40px rgba(0, 255, 255, 0.8)" 
-            : "0 0 20px rgba(0, 255, 255, 0.5)"
+            ? "0 0 30px rgba(124, 106, 239, 0.8)" 
+            : "0 0 15px rgba(124, 106, 239, 0.5)"
         }}
         aria-label={isListening() ? "Click to stop listening" : "Click to start talking"}
-        role="button"
-        tabindex="0"
       >
         <Show when={!isProcessing() && !isSpeaking()} fallback={
-          <svg class="w-10 h-10 text-white animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <svg class="w-8 h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         }>
           <Show when={isListening()} fallback={
-            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z"/>
               <path d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"/>
             </svg>
           }>
-            {/* Stop icon when listening */}
-            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
               <rect x="5" y="5" width="10" height="10" rx="1" />
             </svg>
           </Show>
         </Show>
       </button>
       
-      <div class="text-center min-h-[60px]">
+      <div class="text-center min-h-[40px]">
         <Show when={error()}>
-          <p class="text-red-400 text-sm font-medium" role="alert">
+          <p class="text-red-400 text-xs font-medium" role="alert">
             {error()}
           </p>
         </Show>
         <Show when={!error()}>
-          <p class="text-cyan-300 text-sm font-medium" aria-live="polite">
+          <p class="text-purple-300/80 text-xs font-medium" style={{ "font-family": "CabinetGrotesk-Variable, sans-serif" }}>
             <Show when={isListening()}>
-              🎤 Listening... (Click to stop)
+              🎤 Listening...
             </Show>
             <Show when={isProcessing()}>
-              ⚙️ AI is thinking...
+              ⚙️ Processing...
             </Show>
             <Show when={isSpeaking()}>
-              🔊 AI is speaking...
+              🔊 Speaking...
             </Show>
             <Show when={!isListening() && !isProcessing() && !isSpeaking()}>
-              Click to Start Conversation
+              Tap to Talk
             </Show>
           </p>
-          <Show when={transcript()}>
-            <p class="text-cyan-300/60 text-xs mt-2 max-w-[250px] truncate">
-              You: "{transcript()}"
-            </p>
-          </Show>
         </Show>
       </div>
     </div>

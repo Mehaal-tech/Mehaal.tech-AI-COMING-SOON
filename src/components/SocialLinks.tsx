@@ -43,14 +43,11 @@ export default function SocialLinks() {
             href={link.url}
             target={link.name !== "Email" ? "_blank" : undefined}
             rel={link.name !== "Email" ? "noopener noreferrer" : undefined}
-            class="group relative p-3 rounded-full bg-black/50 border border-cyan-500/30 hover:border-cyan-500 transition-all hover:scale-110 active:scale-95"
-            style={{
-              "box-shadow": "0 0 15px rgba(0, 255, 255, 0.2)"
-            }}
+            class="group relative p-2 rounded-full bg-black/30 border border-purple-500/20 hover:border-purple-400/50 transition-all hover:scale-110 active:scale-95"
             aria-label={link.ariaLabel}
           >
             <svg
-              class="w-6 h-6 text-cyan-300 group-hover:text-cyan-100 transition-colors"
+              class="w-5 h-5 text-purple-300/70 group-hover:text-purple-200 transition-colors"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
@@ -64,11 +61,8 @@ export default function SocialLinks() {
             
             {/* Tooltip */}
             <span 
-              class="absolute -top-10 left-1/2 -translate-x-1/2 bg-black/90 text-cyan-300 text-xs font-medium px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap"
-              style={{
-                "font-family": "CabinetGrotesk-Variable, sans-serif",
-                "box-shadow": "0 0 10px rgba(0, 255, 255, 0.3)"
-              }}
+              class="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/90 text-purple-200 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap"
+              style={{ "font-family": "CabinetGrotesk-Variable, sans-serif" }}
             >
               {link.name}
             </span>

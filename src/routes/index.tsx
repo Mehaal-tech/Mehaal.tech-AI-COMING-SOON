@@ -1,15 +1,13 @@
 import HeroAnimation from "~/components/HeroAnimation";
 
 export default function Home() {
-  console.log("Home component rendering");
-  
   return (
     <div style={{
       position: "relative",
       width: "100vw",
       height: "100vh",
       overflow: "hidden",
-      background: "#000"
+      background: "#0a0a12"
     }}>
       {/* Header Section */}
       <header style={{
@@ -17,32 +15,82 @@ export default function Home() {
         top: "0",
         left: "0",
         right: "0",
-        height: "60px",
-        "z-index": "50",
+        height: "70px",
+        "z-index": "100",
         display: "flex",
         "align-items": "center",
-        "justify-content": "center",
-        "background": "linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%)"
+        "padding-left": "24px",
+        "padding-right": "24px",
+        gap: "20px"
       }}
       role="banner">
+        {/* Header Background - Scrolling */}
+        <div 
+          style={{
+            position: "absolute",
+            inset: "0",
+            "background-image": "url(/brand/header-bg.png)",
+            "background-size": "auto 100%",
+            "background-repeat": "repeat-x",
+            animation: "scroll-bg-rtl 60s linear infinite",
+            opacity: "0.4"
+          }}
+          aria-hidden="true"
+        />
+        
+        {/* Header Logo - Left */}
         <img 
           src="/brand/LOGO-LIGHT.png" 
           alt="Mehaal.tech" 
           style={{
-            height: "36px",
-            "object-fit": "contain"
+            position: "relative",
+            height: "44px",
+            "object-fit": "contain",
+            "z-index": "10"
           }}
           loading="eager"
         />
+        
+        {/* Tagline */}
+        <h2 style={{
+          position: "relative",
+          color: "#7c6aef",
+          "font-size": "clamp(14px, 2.5vw, 22px)",
+          "font-weight": "600",
+          "font-style": "italic",
+          "font-family": "CabinetGrotesk-Variable, sans-serif",
+          "letter-spacing": "0.15em",
+          "z-index": "10",
+          margin: "0"
+        }}>
+          Intelligence Beyond Impossible
+        </h2>
       </header>
 
       {/* Main Body Section */}
       <main style={{
         position: "absolute",
-        inset: "0",
+        top: "70px",
+        bottom: "50px",
+        left: "0",
+        right: "0",
         overflow: "hidden"
       }}
       role="main">
+        {/* Body Background - Scrolling */}
+        <div 
+          style={{
+            position: "absolute",
+            inset: "0",
+            "background-image": "url(/brand/body-bg.png)",
+            "background-size": "auto 100%",
+            "background-repeat": "repeat-x",
+            animation: "scroll-bg-rtl 120s linear infinite",
+            opacity: "0.15"
+          }}
+          aria-hidden="true"
+        />
+        
         {/* Hero Animation */}
         <HeroAnimation />
       </main>
@@ -53,20 +101,50 @@ export default function Home() {
         bottom: "0",
         left: "0",
         right: "0",
-        height: "40px",
-        "z-index": "50",
+        height: "50px",
+        "z-index": "100",
         display: "flex",
         "align-items": "center",
-        "justify-content": "center",
-        "background": "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)"
+        "padding-left": "24px",
+        "padding-right": "24px",
+        gap: "16px"
       }}
       role="contentinfo">
+        {/* Footer Background */}
+        <div 
+          style={{
+            position: "absolute",
+            inset: "0",
+            background: "#0d0d18",
+            "border-top": "1px solid rgba(124, 106, 239, 0.3)"
+          }}
+          aria-hidden="true"
+        />
+        
+        {/* Footer Logo - Left */}
+        <img 
+          src="/brand/LOGO-LIGHT.png" 
+          alt="Mehaal.tech" 
+          style={{
+            position: "relative",
+            height: "28px",
+            "object-fit": "contain",
+            "z-index": "10"
+          }}
+          loading="lazy"
+        />
+        
+        {/* Copyright Text */}
         <p style={{
-          color: "rgba(0, 255, 255, 0.6)",
-          "font-size": "12px",
-          "font-family": "CabinetGrotesk-Variable, sans-serif"
+          position: "relative",
+          color: "rgba(124, 106, 239, 0.8)",
+          "font-size": "13px",
+          "font-family": "CabinetGrotesk-Variable, sans-serif",
+          "letter-spacing": "0.2em",
+          "z-index": "10",
+          margin: "0"
         }}>
-          © 2026 Mehaal.tech — AI Voice Platform
+          Mehaal.Tech AI Pvt Ltd. All rights reserved 2026
         </p>
       </footer>
     </div>
