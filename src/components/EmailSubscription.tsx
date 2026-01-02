@@ -18,7 +18,17 @@ export default function EmailSubscription() {
     setMessage(null);
 
     try {
-      // Call the subscription API
+      // For demo mode - just show success
+      // TODO: Replace with actual API call in production
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setMessage({ type: 'success', text: 'Thank you! We\'ll notify you at launch.' });
+      setEmail("");
+      
+      // Log for now
+      console.log('Email subscription:', emailValue);
+      
+      /* Production API call:
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -33,6 +43,7 @@ export default function EmailSubscription() {
       
       setMessage({ type: 'success', text: data.message || 'Thank you! We\'ll notify you at launch.' });
       setEmail("");
+      */
     } catch (error) {
       console.error('Subscription error:', error);
       setMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
