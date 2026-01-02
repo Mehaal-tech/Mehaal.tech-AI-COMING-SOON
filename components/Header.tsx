@@ -1,73 +1,65 @@
-import Link from "next/link";
-import Image from "next/image";
-import ThemeSwitch from "./ThemeSwitch";
+"use client"
 
-interface NavItem {
-  label: string;
-  href: string;
-}
+import { useState, useEffect } from "react"
+import { Logo } from "@/components/logo"
+import { Button } from "@/components/ui/button"
 
-interface HeaderProps {
-  logoSrc?: string;
-  logoAlt?: string;
-  logoWidth?: number;
-  logoHeight?: number;
-  brandName?: string;
-  navItems?: NavItem[];
-  showThemeSwitch?: boolean;
-}
+export function Header() {
+  const [isVisible, setIsVisible] = useState(false)
 
-export default function Header({
-  logoSrc = "/brand/mehaal-logo.svg",
-  logoAlt = "Mehaal Logo",
-  logoWidth = 180,
-  logoHeight = 60,
-  brandName,
-  navItems = [
-    { label: "Home", href: "/" },
-    { label: "Contact", href: "/contact" },
-  ],
-  showThemeSwitch = true,
-}: HeaderProps) {
+  useEffect(() => {
+    setTimeout(() => setIsVisible(true), 300)
+  }, [])
+
   return (
-    <header className="bg-white/5 dark:bg-black/30 backdrop-blur-md border-b border-gray-200/10 dark:border-white/10 transition-colors duration-300">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          {logoSrc ? (
-            <Image 
-              src={logoSrc} 
-              alt={logoAlt} 
-              width={logoWidth} 
-              height={logoHeight}
-              className="h-16 w-auto"
-              sizes="(max-width: 768px) 120px, 180px"
-            />
-          ) : brandName ? (
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">{brandName}</span>
-          ) : null}
-        </Link>
-        <nav className="flex items-center">
-          {navItems.length > 0 ? (
-            <>
-              <ul className="flex space-x-2 mr-2">
-                {navItems.map((item, index) => (
-                  <li key={index}>
-                    <Link
-                      href={item.href}
-                      className="text-sm text-gray-700 dark:text-white/90 hover:text-gray-900 dark:hover:text-white px-4 py-2 rounded-md hover:bg-gray-100/50 dark:hover:bg-white/10 transition-all"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              {showThemeSwitch && <ThemeSwitch />}
-            </>
-          ) : (
-            showThemeSwitch && <ThemeSwitch />
-          )}
-        </nav>
+    <header className="fixed top-0 left-0 right-0 z-40 overflow-hidden">
+      {/* Animated header background */}
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: "url(/placeholder.svg?height=200&width=3840&query=abstract+tech+circuit+pattern)",
+          backgroundSize: "cover",
+          animation: "slideBackground 40s linear infinite",
+        }}
+      />
+
+      <div
+        className={`relative backdrop-blur-md bg-black/50 border-b border-purple-500/20 transition-all duration-700 ${
+          isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+        }`}
+      >
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo with slide-in navigation */}
+            <div className="flex items-center gap-8">
+              <Logo size="small" glowIntensity="low" />
+
+              <nav
+                className={`flex items-center gap-6 transition-all duration-500 delay-300 ${
+                  isVisible ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
+                }`}
+              >
+                <a href="#features" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  Features
+                </a>
+                <a href="#demo" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  Demo
+                </a>
+                <a href="#about" className="text-sm text-gray-300 hover:text-white transition-colors">
+                  About
+                </a>
+              </nav>
+            </div>
+
+            <Button
+              variant="outline"
+              className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20 bg-transparent"
+            >
+              Get Started
+            </Button>
+          </div>
+        </div>
       </div>
     </header>
-  );
+  )
 }
