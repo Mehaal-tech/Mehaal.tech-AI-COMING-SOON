@@ -11,104 +11,63 @@ export default function Home() {
       overflow: "hidden",
       background: "#000"
     }}>
-      {/* Header Section with animated background */}
+      {/* Header Section */}
       <header style={{
         position: "absolute",
         top: "0",
         left: "0",
         right: "0",
-        height: "80px",
-        "z-index": "10",
-        overflow: "hidden"
+        height: "60px",
+        "z-index": "50",
+        display: "flex",
+        "align-items": "center",
+        "justify-content": "center",
+        "background": "linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%)"
       }}
       role="banner">
-        <div 
+        <img 
+          src="/brand/LOGO-LIGHT.png" 
+          alt="Mehaal.tech" 
           style={{
-            position: "absolute",
-            inset: "0",
-            opacity: "0.3",
-            "background-image": "url(/backgroundh.png)",
-            "background-size": "auto 100%",
-            "background-repeat": "repeat-x",
-            animation: "scroll-bg 30s linear infinite",
-            "will-change": "background-position"
+            height: "36px",
+            "object-fit": "contain"
           }}
-          aria-hidden="true"
+          loading="eager"
         />
       </header>
 
-      {/* Main Body Section with animated background */}
+      {/* Main Body Section */}
       <main style={{
         position: "absolute",
         inset: "0",
         overflow: "hidden"
       }}
       role="main">
-        <div 
-          style={{
-            position: "absolute",
-            inset: "0",
-            opacity: "0.2",
-            "background-image": "url(/background.png)",
-            "background-size": "auto 100%",
-            "background-repeat": "repeat-x",
-            animation: "scroll-bg 40s linear infinite",
-            "will-change": "background-position"
-          }}
-          aria-hidden="true"
-        />
-        
         {/* Hero Animation */}
-        <div style={{
-          position: "relative",
-          width: "100%",
-          height: "100%"
-        }}>
-          <HeroAnimation />
-        </div>
+        <HeroAnimation />
       </main>
 
-      {/* Footer Section with animated background */}
+      {/* Footer Section */}
       <footer style={{
         position: "absolute",
         bottom: "0",
         left: "0",
         right: "0",
-        height: "80px",
-        "z-index": "10",
-        overflow: "hidden",
+        height: "40px",
+        "z-index": "50",
         display: "flex",
         "align-items": "center",
-        "justify-content": "center"
+        "justify-content": "center",
+        "background": "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)"
       }}
       role="contentinfo">
-        <div 
-          style={{
-            position: "absolute",
-            inset: "0",
-            opacity: "0.3",
-            "background-image": "url(/backgroundh.png)",
-            "background-size": "auto 100%",
-            "background-repeat": "repeat-x",
-            animation: "scroll-bg 30s linear infinite",
-            "will-change": "background-position"
-          }}
-          aria-hidden="true"
-        />
-        
-        {/* Footer Logo */}
-        <img 
-          src="/footer-logo.png" 
-          alt="Mehaal.tech - Powered by AI" 
-          style={{
-            position: "relative",
-            height: "64px",
-            "object-fit": "contain",
-            "z-index": "10",
-            filter: "drop-shadow(0 0 8px rgba(0, 255, 255, 0.4))"
-          }}
-          loading="lazy"
-        />
+        <p style={{
+          color: "rgba(0, 255, 255, 0.6)",
+          "font-size": "12px",
+          "font-family": "CabinetGrotesk-Variable, sans-serif"
+        }}>
+          © 2026 Mehaal.tech — AI Voice Platform
+        </p>
       </footer>
     </div>
   );

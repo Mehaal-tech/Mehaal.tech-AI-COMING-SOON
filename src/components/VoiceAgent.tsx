@@ -4,6 +4,8 @@ interface VoiceAgentProps {
   onTranscript: (text: string) => void;
   onSpeechStart: () => void;
   onSpeechEnd: () => void;
+  onAgentMessage?: (text: string, side: 'left' | 'right') => void;
+  onAgentMessageEnd?: () => void;
 }
 
 // OpenAI Realtime API for Speech-to-Speech
@@ -23,6 +25,7 @@ export default function VoiceAgent(props: VoiceAgentProps) {
   let mediaStream: MediaStream | null = null;
   let audioWorklet: AudioWorkletNode | null = null;
   let sourceNode: MediaStreamAudioSourceNode | null = null;
+  let messageSide: 'left' | 'right' = 'left';
 
   // Initialize Audio Context for playback
   const initAudioContext = async () => {
@@ -132,6 +135,8 @@ export default function VoiceAgent(props: VoiceAgentProps) {
 
     isPlaying = false;
     setIsSpeaking(false);
+    // Notify that agent message ended
+    props.onAgentMessageEnd?.();
   };
 
   // Handle messages from Realtime API
@@ -171,6 +176,11 @@ export default function VoiceAgent(props: VoiceAgentProps) {
       case "response.audio_transcript.done":
         console.log("[Realtime] AI transcript:", message.transcript);
         setIsProcessing(false);
+        // Show agent message card with alternating sides
+        if (message.transcript && props.onAgentMessage) {
+          props.onAgentMessage(message.transcript, messageSide);
+          messageSide = messageSide === 'left' ? 'right' : 'left';
+        }
         break;
 
       case "response.audio.delta":
