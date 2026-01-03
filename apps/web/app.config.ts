@@ -3,7 +3,7 @@ import UnoCSS from 'unocss/vite';
 
 export default defineConfig({
   server: {
-    preset: 'node-server',
+    preset: 'vercel',
   },
   vite: {
     plugins: [UnoCSS()],

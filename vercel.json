@@ -1,8 +1,16 @@
 {
   "buildCommand": "pnpm build",
-  "outputDirectory": ".output/public",
   "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
   "framework": null,
-  "regions": ["iad1"]
+  "outputDirectory": ".vinxi/build/client",
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ]
 }
