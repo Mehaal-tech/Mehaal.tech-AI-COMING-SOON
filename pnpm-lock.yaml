@@ -35,6 +35,9 @@ importers:
       '@db/schema':
         specifier: workspace:*
         version: link:../../packages/db
+      '@solidjs/router':
+        specifier: ^0.15.4
+        version: 0.15.4(solid-js@1.9.10)
       '@solidjs/start':
         specifier: ^1.2.1
         version: 1.2.1(solid-js@1.9.10)(vinxi@0.5.10(@types/node@25.0.3)(db0@0.3.4)(ioredis@5.8.2)(jiti@2.6.1)(terser@5.44.1))(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(terser@5.44.1))
@@ -66,6 +69,9 @@ importers:
 
   packages/auth:
     dependencies:
+      '@solidjs/router':
+        specifier: ^0.15.4
+        version: 0.15.4(solid-js@1.9.10)
       solid-js:
         specifier: ^1.8.7
         version: 1.9.10
@@ -935,6 +941,11 @@ packages:
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
+
+  '@solidjs/router@0.15.4':
+    resolution: {integrity: sha512-WOpgg9a9T638cR+5FGbFi/IV4l2FpmBs1GpIMSPa0Ce9vyJN7Wts+X2PqMf9IYn0zUj2MlSJtm1gp7/HI/n5TQ==}
+    peerDependencies:
+      solid-js: ^1.8.6
 
   '@solidjs/start@1.2.1':
     resolution: {integrity: sha512-O5E7rcCwm2f8GlXKgS2xnU37Ld5vMVXJgo/qR7UI5iR5uFo9V2Ac+SSVNXkM98CeHKHt55h1UjbpxxTANEsHmA==}
@@ -3837,6 +3848,10 @@ snapshots:
   '@sindresorhus/is@7.2.0': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
+
+  '@solidjs/router@0.15.4(solid-js@1.9.10)':
+    dependencies:
+      solid-js: 1.9.10
 
   '@solidjs/start@1.2.1(solid-js@1.9.10)(vinxi@0.5.10(@types/node@25.0.3)(db0@0.3.4)(ioredis@5.8.2)(jiti@2.6.1)(terser@5.44.1))(vite@7.3.0(@types/node@25.0.3)(jiti@2.6.1)(terser@5.44.1))':
     dependencies:

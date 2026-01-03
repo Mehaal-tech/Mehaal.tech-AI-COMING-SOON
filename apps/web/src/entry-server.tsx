@@ -1,5 +1,5 @@
-import { createStartHandler, defaultStreamHandler } from '@solidjs/start/server';
+import { createHandler } from '@solidjs/start/server';
 
-export default createStartHandler(() => {
-  return defaultStreamHandler();
-});
+export default createHandler(() => (
+  import("./root")
+));
