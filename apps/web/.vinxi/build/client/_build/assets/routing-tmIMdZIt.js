@@ -1,1 +1,0 @@
-import{u as o,a as r}from"./web-UFtpux7-.js";function n(t,a){if(t==null)throw new Error(a);return t}const s=r(),e=()=>n(o(s),"<A> and 'use' router primitives can be only used inside a Route."),i=()=>e().navigatorFactory(),c=()=>e().params;export{c as a,i as u};

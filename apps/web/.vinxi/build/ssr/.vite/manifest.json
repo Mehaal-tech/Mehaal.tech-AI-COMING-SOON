@@ -27,8 +27,12 @@
     "file": "assets/routing-0hP7Sh6N.js",
     "name": "routing"
   },
-  "_ssr-3SGXmd-q.js": {
-    "file": "assets/ssr-3SGXmd-q.js",
+  "_ssr-BERDO86b.css": {
+    "file": "assets/ssr-BERDO86b.css",
+    "src": "_ssr-BERDO86b.css"
+  },
+  "_ssr-CFrG4X4Z.js": {
+    "file": "assets/ssr-CFrG4X4Z.js",
     "name": "ssr",
     "dynamicImports": [
       "src/routes/auth/login.tsx?pick=default&pick=$css",
@@ -63,17 +67,13 @@
       "assets/ssr-BERDO86b.css"
     ]
   },
-  "_ssr-BERDO86b.css": {
-    "file": "assets/ssr-BERDO86b.css",
-    "src": "_ssr-BERDO86b.css"
-  },
   "src/root.tsx": {
-    "file": "assets/root-1--VtjcI.js",
+    "file": "assets/root-p0kWiATY.js",
     "name": "root",
     "src": "src/root.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_ssr-3SGXmd-q.js",
+      "_ssr-CFrG4X4Z.js",
       "_routing-0hP7Sh6N.js"
     ],
     "css": [
@@ -242,7 +242,7 @@
     "src": "virtual:$vinxi/handler/ssr",
     "isEntry": true,
     "imports": [
-      "_ssr-3SGXmd-q.js"
+      "_ssr-CFrG4X4Z.js"
     ]
   }
 }
