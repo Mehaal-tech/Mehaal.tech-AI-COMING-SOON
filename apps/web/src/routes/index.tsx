@@ -21,13 +21,18 @@ export default function Home() {
             'background-size': '200% 100%',
             'background-repeat': 'repeat-x',
           }}
+          aria-hidden="true"
         />
 
         {/* Main Layout */}
         <div class="flex flex-col min-h-screen">
           <Header />
           
-          <main class="flex-1 flex items-center justify-center">
+          <main 
+            id="main-content" 
+            class="flex-1 flex items-center justify-center px-4"
+            role="main"
+          >
             <Hero />
           </main>
           

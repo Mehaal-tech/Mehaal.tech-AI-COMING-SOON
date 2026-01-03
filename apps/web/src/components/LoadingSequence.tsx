@@ -45,7 +45,7 @@ export function LoadingSequence() {
     <Show when={isActive()}>
       {/* Full screen black overlay */}
       <div 
-        class="fixed inset-0 z-50 bg-black flex items-center justify-center"
+        class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center"
         classList={{
           'opacity-100': loadingState.phase !== 'content-load' && loadingState.phase !== 'steady',
           'opacity-0 pointer-events-none': loadingState.phase === 'content-load' || loadingState.phase === 'steady',
@@ -53,6 +53,11 @@ export function LoadingSequence() {
         style={{
           transition: 'opacity 0.8s ease-out',
         }}
+        role="progressbar"
+        aria-valuenow={loadingState.progress}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Loading application"
       >
         {/* Center logo */}
         <Show when={loadingState.logoVisible}>
@@ -92,6 +97,26 @@ export function LoadingSequence() {
             </Show>
           </div>
         </Show>
+        
+        {/* Progress indicator */}
+        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 w-64 md:w-96">
+          <div class="flex items-center gap-3 text-gray-400 text-sm mb-2">
+            <span class="font-mono">{loadingState.progress}%</span>
+            <div class="flex-1 h-1 bg-gray-800 rounded-full overflow-hidden">
+              <div 
+                class="h-full bg-gradient-to-r from-blue-600 to-blue-400 transition-all duration-300"
+                style={{ width: `${loadingState.progress}%` }}
+              />
+            </div>
+          </div>
+          <p class="text-center text-xs text-gray-500">
+            {loadingState.phase === 'black-screen' && 'Initializing...'}
+            {loadingState.phase === 'logo-emerge' && 'Loading AI Core...'}
+            {loadingState.phase === 'glow-expand' && 'Activating Systems...'}
+            {loadingState.phase === 'glow-retract' && 'Preparing Interface...'}
+            {loadingState.phase === 'content-load' && 'Almost Ready...'}
+          </p>
+        </div>
       </div>
     </Show>
   );

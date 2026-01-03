@@ -10,6 +10,7 @@ export type LoadingPhase =
 
 interface LoadingState {
   phase: LoadingPhase;
+  progress: number; // 0-100
   logoVisible: boolean;
   glowExpanded: boolean;
   glowRetracted: boolean;
@@ -19,6 +20,7 @@ interface LoadingState {
 
 const [loadingState, setLoadingState] = createStore<LoadingState>({
   phase: 'black',
+  progress: 0,
   logoVisible: false,
   glowExpanded: false,
   glowRetracted: false,
@@ -28,25 +30,35 @@ const [loadingState, setLoadingState] = createStore<LoadingState>({
 
 // State machine controller
 export function advanceLoadingPhase(nextPhase: LoadingPhase) {
+  const progressMap: Record<LoadingPhase, number> = {
+    'black': 0,
+    'logo-emerge': 20,
+    'glow-expand': 45,
+    'glow-retract': 70,
+    'content-load': 90,
+    'steady': 100,
+  };
+  
   switch (nextPhase) {
     case 'logo-emerge':
-      setLoadingState({ phase: nextPhase, logoVisible: true });
+      setLoadingState({ phase: nextPhase, progress: progressMap[nextPhase], logoVisible: true });
       break;
     case 'glow-expand':
-      setLoadingState({ phase: nextPhase, glowExpanded: true });
+      setLoadingState({ phase: nextPhase, progress: progressMap[nextPhase], glowExpanded: true });
       break;
     case 'glow-retract':
       setLoadingState({ 
-        phase: nextPhase, 
+        phase: nextPhase,
+        progress: progressMap[nextPhase],
         glowRetracted: true,
         persistentGlow: true,
       });
       break;
     case 'content-load':
-      setLoadingState({ phase: nextPhase, contentVisible: true });
+      setLoadingState({ phase: nextPhase, progress: progressMap[nextPhase], contentVisible: true });
       break;
     case 'steady':
-      setLoadingState({ phase: nextPhase });
+      setLoadingState({ phase: nextPhase, progress: progressMap[nextPhase] });
       break;
   }
 }

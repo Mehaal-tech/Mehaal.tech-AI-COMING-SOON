@@ -28,12 +28,12 @@
     "name": "routing"
   },
   "src/app.tsx": {
-    "file": "assets/app-sAf85Y0P.js",
+    "file": "assets/app-D7wd_jxA.js",
     "name": "app",
     "src": "src/app.tsx",
     "isDynamicEntry": true,
     "css": [
-      "assets/app-BBPZTcvg.css"
+      "assets/app-BERDO86b.css"
     ]
   },
   "src/routes/auth/login.tsx?pick=default&pick=$css": {

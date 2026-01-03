@@ -9,6 +9,14 @@ export default defineConfig({
     }),
   ],
   theme: {
+    breakpoints: {
+      'xs': '475px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
     colors: {
       // Base tokens
       'base-black': '#000000',
@@ -68,9 +76,12 @@ export default defineConfig({
   },
   rules: [
     // Custom glow intensity
-    [/^glow-intensity-(\d+)$/, ([, d]) => ({ 
-      '--glow-intensity': `${d}%`,
-      filter: `drop-shadow(0 0 20px rgba(var(--color-ai-glow-rgb), calc(var(--glow-intensity) / 100)))`,
-    })],
+    [/^glow-intensity-(\d+)$/, (match) => { 
+      const intensity = match[1];
+      return {
+        '--glow-intensity': `${intensity}%`,
+        filter: `drop-shadow(0 0 20px rgba(var(--color-ai-glow-rgb), calc(var(--glow-intensity) / 100)))`,
+      };
+    }],
   ],
 });
