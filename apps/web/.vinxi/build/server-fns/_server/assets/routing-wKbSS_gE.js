@@ -1,0 +1,1 @@
+import{useContext as n,createContext as e}from"solid-js";function a(t,r){if(t==null)throw new Error(r);return t}const s=e();e();const o=()=>a(n(s),"<A> and 'use' router primitives can be only used inside a Route."),i=()=>o().navigatorFactory(),c=()=>o().params;export{c as a,i as u};
