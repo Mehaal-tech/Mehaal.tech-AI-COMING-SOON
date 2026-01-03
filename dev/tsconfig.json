@@ -1,8 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "compilerOptions": {
-    "types": ["vinxi/types/client", "vite/client"]
-  },
-  "exclude": ["node_modules", "dist"]
-}
-
