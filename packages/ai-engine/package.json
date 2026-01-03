@@ -1,0 +1,12 @@
+{
+  "name": "@ai/engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "solid-js": "^1.8.7"
+  }
+}

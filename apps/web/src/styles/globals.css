@@ -1,0 +1,135 @@
+:root {
+  /* Base theme variables */
+  --color-brand-primary: #0066ff;
+  --color-brand-secondary: #00ccff;
+  --color-brand-accent: #ff00ff;
+  --color-brand-bg: #000000;
+  --color-brand-text: #ffffff;
+  --color-ai-glow: #0066ff;
+  --color-ai-glow-rgb: 0, 102, 255;
+  --glow-intensity: 60;
+}
+
+/* Tenant theme overrides can be injected here */
+[data-theme="tenant-1"] {
+  --color-brand-primary: #ff6b00;
+  --color-ai-glow: #ff6b00;
+  --color-ai-glow-rgb: 255, 107, 0;
+}
+
+[data-theme="tenant-2"] {
+  --color-brand-primary: #00ff88;
+  --color-ai-glow: #00ff88;
+  --color-ai-glow-rgb: 0, 255, 136;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-brand-bg);
+  color: var(--color-brand-text);
+}
+
+/* Animations */
+@keyframes breathe-glow {
+  0%, 100% { 
+    opacity: 0.6; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.05); 
+  }
+}
+
+@keyframes slide-in-right {
+  from { 
+    transform: translateX(100%); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes emerge {
+  from { 
+    opacity: 0; 
+    transform: scale(0.8); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes glow-expand {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(100);
+  }
+}
+
+@keyframes glow-retract {
+  from {
+    opacity: 1;
+    transform: scale(100);
+  }
+  to {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes scroll-bg-right-to-left {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: -100% 0%;
+  }
+}
+
+/* Utility classes */
+.breathe-glow {
+  animation: breathe-glow 4s ease-in-out infinite;
+}
+
+.slide-in-right {
+  animation: slide-in-right 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.emerge {
+  animation: emerge 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.scroll-bg {
+  animation: scroll-bg-right-to-left 60s linear infinite;
+  background-size: 200% 100%;
+}
+
+.scroll-bg-slow {
+  animation: scroll-bg-right-to-left 120s linear infinite;
+  background-size: 200% 100%;
+}
